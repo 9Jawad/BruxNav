@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-
+/**
+ * Lecture de fichier CSV.
+ */
 public class CsvReader implements AutoCloseable {
 
     private final CSVReader csv;

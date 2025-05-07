@@ -1,4 +1,4 @@
-id,name,age
-1,Nath,21
-2,Jawad,20
-3,Samy,15
+id,name,type
+1,Berchem Station,BUS
+2,Aalst,TRAM
+3,Dilbeek,TRAIN

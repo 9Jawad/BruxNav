@@ -21,11 +21,11 @@ class CsvReaderTest {
     void readHeader() throws IOException {
         Path csv = copyResource("mini.csv");
         try (CsvReader reader = new CsvReader(csv)) {
-            assertArrayEquals(new String[]{"id","name","age"}, reader.getHeaders());
+            assertArrayEquals(new String[]{"id","name","type"}, reader.getHeaders());
         }
     }
 
-    // ---------- Test 2 : forEach lecture lignes ----------
+    // ---------- Test 2 : lecture lignes ----------
     @Test
     void forEachCheckLines() throws IOException {
         Path csv = copyResource("mini.csv");
@@ -37,16 +37,16 @@ class CsvReaderTest {
     private void readingLine(String[] line) {   // hard-codé
         assertTrue(line.length == 3);
         if (line[0].equals("1")) {
-            assertEquals("Nath", line[1]);
-            assertEquals("21", line[2]);
+            assertEquals("Berchem Station", line[1]);
+            assertEquals("BUS", line[2]);
         }
         else if (line[0].equals("2")) {
-            assertEquals("Jawad", line[1]);
-            assertEquals("20", line[2]);
+            assertEquals("Aalst", line[1]);
+            assertEquals("TRAM", line[2]);
         }
         else if (line[0].equals("3")) {
-            assertEquals("Samy", line[1]);
-            assertEquals("15", line[2]);
+            assertEquals("Dilbeek", line[1]);
+            assertEquals("TRAIN", line[2]);
         } else fail("Ligne inattendue");
     }
 
