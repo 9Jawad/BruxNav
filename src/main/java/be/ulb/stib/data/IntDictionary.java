@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 
-/**
+/*
  * Mapping bidirectionnel <String id ⇄ int idx> utilisé pour compresser les identifiants GTFS.
- * + Méthode "freeze" pour verrouiller le dictionnaire.
+ * Méthode "freeze" pour verrouiller le dictionnaire.
  */
+
 public final class IntDictionary implements Serializable {
 
     private final Map<String, Integer> s2i = new HashMap<>(32_768);
