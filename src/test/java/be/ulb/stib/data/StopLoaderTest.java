@@ -17,7 +17,7 @@ class StopLoaderTest {
     // ---------- Test 1 : nombre de stop_id ----------
     @Test
     void stopIdCountMatchesCsvLineCount() throws IOException {
-        Path csv = Resources.copyToTemp("mini_stops.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("mini_stops.csv", tmp);
         AgencyModel agency = new AgencyModel();
         StopLoader.load(csv, agency);
         agency.freeze();
@@ -30,32 +30,32 @@ class StopLoaderTest {
     // ---------- Test 2 : premiers noms ----------
     @Test
     void sampleStopNamesAreCorrect() throws IOException {
-        Path csv = Resources.copyToTemp("mini_stops.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("mini_stops.csv", tmp);
         AgencyModel agency = new AgencyModel();
         StopLoader.load(csv, agency);
         agency.freeze();
 
-        assertEquals("MONTGOMERY",   agency.names.get(0));
-        assertEquals("SIMONIS",      agency.names.get(1));
-        assertEquals("DE BROUCKERE", agency.names.get(2)); // réel idx = 5
+        assertEquals("MONTGOMERY",   agency.stopNamePool.get(0));
+        assertEquals("SIMONIS",      agency.stopNamePool.get(1));
+        assertEquals("DE BROUCKERE", agency.stopNamePool.get(2)); // réel idx = 5
     }
 
     // ---------- Test 3 : mapping nom ↔ index ----------
     @Test
     void nameIndexMappingIsCorrect() throws IOException {
-        Path csv = Resources.copyToTemp("mini_stops.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("mini_stops.csv", tmp);
         AgencyModel agency = new AgencyModel();
         StopLoader.load(csv, agency);
         agency.freeze();
 
-        assertEquals(1,         agency.nameIdxList.get(4));
-        assertEquals("SIMONIS", agency.names.get(1));
+        assertEquals(1,         agency.stopNameIdxList.get(4));
+        assertEquals("SIMONIS", agency.stopNamePool.get(1));
     }
 
     // ---------- Test 4: latitudes ----------
     @Test
     void sampleLatitudesAreCorrect() throws IOException {
-        Path csv = Resources.copyToTemp("mini_stops.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("mini_stops.csv", tmp);
         AgencyModel agency = new AgencyModel();
         StopLoader.load(csv, agency);
         agency.freeze();
@@ -68,7 +68,7 @@ class StopLoaderTest {
     // ---------- Test 5 : longitudes ----------
     @Test
     void sampleLongitudesAreCorrect() throws IOException {
-        Path csv = Resources.copyToTemp("mini_stops.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("mini_stops.csv", tmp);
         AgencyModel agency = new AgencyModel();
         StopLoader.load(csv, agency);
         agency.freeze();

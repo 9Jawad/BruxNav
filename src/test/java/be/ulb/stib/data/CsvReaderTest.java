@@ -17,7 +17,7 @@ class CsvReaderTest {
     // ---------- Test 1 : lecture header ----------
     @Test
     void readHeader() throws IOException {
-        Path csv = Resources.copyToTemp("mini.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("mini.csv", tmp);
         try (CsvReader reader = new CsvReader(csv)) {
             assertArrayEquals(new String[]{"id","name","type"}, reader.getHeaders());
         }
@@ -26,7 +26,7 @@ class CsvReaderTest {
     // ---------- Test 2 : lecture lignes ----------
     @Test
     void forEachCheckLines() throws IOException {
-        Path csv = Resources.copyToTemp("mini.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("mini.csv", tmp);
         try (CsvReader reader = new CsvReader(csv)) {
             reader.forEach(line -> readingLine(line));
         }
