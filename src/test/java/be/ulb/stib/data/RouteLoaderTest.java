@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class RouteLoaderTest {
+class RouteLoaderTest {
 
     @TempDir Path tmp;   // dossier temporaire
 
@@ -24,8 +24,7 @@ public class RouteLoaderTest {
         agency.freeze();
 
         int expectedRoutes = (int) Files.lines(csv).skip(1).count(); // sans l’en‑tête
-        assertEquals(expectedRoutes, agency.routeCount(),
-                "Chaque route_id du CSV doit être présent dans le modèle");
+        assertEquals(expectedRoutes, agency.routeCount());
     }
 
     // ---------- Test 2 : type route ----------

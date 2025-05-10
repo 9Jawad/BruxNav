@@ -24,8 +24,7 @@ class StopLoaderTest {
         agency.freeze();
 
         int expectedStops = (int) Files.lines(csv).skip(1).count(); // sans l’en‑tête
-        assertEquals(expectedStops, agency.stopCount(),
-                "Chaque stop_id du CSV doit être présent dans le modèle");
+        assertEquals(expectedStops, agency.stopCount());
     }
 
     // ---------- Test 2 : premiers noms ----------

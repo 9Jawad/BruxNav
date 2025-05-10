@@ -12,8 +12,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TripLoaderTest {
 
-    @TempDir Path tmp;
+    @TempDir Path tmp; // répertoire temporaire
 
+    // ---------- Test 1 : nombre de route ----------
     @Test
     void routeCountMatchesCsv() throws IOException {
         Path routesCsv = UtilsForTest.copyToTemp("mini_routes_v2.csv", tmp);
@@ -26,6 +27,7 @@ class TripLoaderTest {
         assertEquals(2, agency.routeCount());
     }
 
+    // ---------- Test 2 : nombre de trip ----------
     @Test
     void tripCountMatchesCsv() throws IOException {
         Path routesCsv = UtilsForTest.copyToTemp("mini_routes_v2.csv", tmp);
@@ -36,9 +38,9 @@ class TripLoaderTest {
         agency.freeze();
 
         assertEquals(3, agency.tripCount());
-
     }
 
+    // ---------- Test 3 : mapping trip → route ----------
     @Test
     void tripIDMatchesLocalRouteID() throws IOException {
         Path routesCsv = UtilsForTest.copyToTemp("mini_routes_v2.csv", tmp);
@@ -51,8 +53,9 @@ class TripLoaderTest {
         assertEquals(0, agency.tripRouteIdxList.getInt(0));  // T1
         assertEquals(0, agency.tripRouteIdxList.getInt(1));  // T2
         assertEquals(1, agency.tripRouteIdxList.getInt(2));  // T3
-        }
+    }
 
+    // ---------- Test 4 : tripIdx dans IDict ----------
     @Test
     void tripIdAreInIdDict() throws IOException {
         Path routesCsv = UtilsForTest.copyToTemp("mini_routes_v2.csv", tmp);
