@@ -44,14 +44,14 @@ public final class StopTimesSorter {
     /* ------------- helpers ------------- */
 
     private static int compareLines(String lineA, String lineB) {
-        String[] A = lineA.split(",", 5);
-        String[] B = lineB.split(",", 5);
+        String[] A = lineA.split(",", 4);
+        String[] B = lineB.split(",", 4);
 
         // compare trip_id
         int tripComparison = A[0].compareTo(B[0]);
 
         // compare stop_sequence
         if (tripComparison != 0) return tripComparison;
-        else return Integer.compare(Integer.parseInt(A[4]), Integer.parseInt(B[4]));
+        else return Integer.compare(Integer.parseInt(A[3]), Integer.parseInt(B[3]));
     }
 }
