@@ -1,10 +1,9 @@
 package be.ulb.stib.data;
 
-import com.opencsv.exceptions.CsvValidationException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
-import be.ulb.stib.data.Utils;
+
+import be.ulb.stib.tools.Utils;
 
 
 /* Parse un fichier stops.csv et met à jour son AgencyModel. */
@@ -17,6 +16,7 @@ public final class StopLoader {
         int colLat  = Utils.idx(reader.getHeaders(), "stop_lat");
         int colLon  = Utils.idx(reader.getHeaders(), "stop_lon");
 
+        // parsing
         reader.forEach(row -> {
             int idx = agency.idDict.getOrAdd(row[colId]);
             double lat = Double.parseDouble(row[colLat]);

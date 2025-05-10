@@ -1,4 +1,4 @@
-package be.ulb.stib.data;
+package be.ulb.stib.tools;
 
 import java.io.IOException;
 import java.io.InputStream;

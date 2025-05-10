@@ -1,10 +1,9 @@
 package be.ulb.stib.data;
 
-import com.opencsv.exceptions.CsvValidationException;
-import it.unimi.dsi.fastutil.bytes.ByteArrayList;
+import be.ulb.stib.tools.Utils;
+
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 
 /* Parse un fichier routes.csv et met à jour son AgencyModel. */
@@ -17,6 +16,7 @@ public final class RouteLoader {
         int colLong = Utils.idx(reader.getHeaders(), "route_long_name");
         int colType = Utils.idx(reader.getHeaders(), "route_type");
 
+        // parsing
         reader.forEach(row -> {
             // idx dense
             agency.idDict.getOrAdd(row[colId]);
@@ -50,7 +50,7 @@ public final class RouteLoader {
             case "TRAM":  return 1;
             case "METRO": return 2;
             case "TRAIN": return 3;
-            default:      return 4;
+            default:      return -1;
         }
     }
 }

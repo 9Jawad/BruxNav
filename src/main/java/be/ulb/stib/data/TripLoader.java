@@ -1,6 +1,7 @@
 package be.ulb.stib.data;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
+import be.ulb.stib.tools.Utils;
+
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -15,6 +16,7 @@ public final class TripLoader {
 
         int routeBase = agency.stopCount();
 
+        // parsing
         reader.forEach(row -> {
             // idx dense
             agency.idDict.getOrAdd(row[colTrip]);

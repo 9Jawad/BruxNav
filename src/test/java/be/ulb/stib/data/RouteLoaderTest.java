@@ -1,5 +1,6 @@
 package be.ulb.stib.data;
 
+import be.ulb.stib.tools.UtilsForTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -35,11 +36,11 @@ public class RouteLoaderTest {
         RouteLoader.load(csv, agency);
         agency.freeze();
 
-        assertEquals(0, agency.routeTypeList.getByte(8));  // BUS
-        assertEquals(1, agency.routeTypeList.getByte(41)); // TRAM
-        assertEquals(2, agency.routeTypeList.getByte(22)); // METRO
-        assertEquals(3, agency.routeTypeList.getByte(34)); // TRAIN
-        assertEquals(4, agency.routeTypeList.getByte(45)); // OTHER
+        assertEquals(0,  agency.routeTypeList.getByte(8));  // BUS
+        assertEquals(1,  agency.routeTypeList.getByte(41)); // TRAM
+        assertEquals(2,  agency.routeTypeList.getByte(22)); // METRO
+        assertEquals(3,  agency.routeTypeList.getByte(34)); // TRAIN
+        assertEquals(-1, agency.routeTypeList.getByte(45)); // OTHER
 
     }
 

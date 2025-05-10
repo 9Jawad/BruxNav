@@ -35,11 +35,17 @@ public final class AgencyModel {
     /* =========================  TRIPS  ========================= */
     public final IntArrayList                  tripRouteIdxList  = new IntArrayList();
 
+    /* ======================  STOPS_TIMES  ====================== */
+    public final IntArrayList                  stopIdxByTimeList = new IntArrayList();
+    public final IntArrayList                  depSecList        = new IntArrayList();
+    public final IntArrayList                  tripIdxStopList   = new IntArrayList();
+    public final IntArrayList                  tripStopOffsets   = new IntArrayList();
+
     /* =========================  INFO  ========================= */
     // Renvoie la taille d'une liste
-    public int stopCount()  { return latList.size(); }
-    public int routeCount() { return routeTypeList.size(); }
     public int tripCount()  { return tripRouteIdxList.size(); }
+    public int stopCount()  { return stopNameIdxList.size(); }
+    public int routeCount() { return routeShortIdxList.size(); }
 
     /* Verouille le dictionnaire. */
     public void freeze() { idDict.freeze(); }
