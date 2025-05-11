@@ -29,14 +29,6 @@ public final class StopTimesLoader {
         IntArrayList denseOfs = agency.tripIdxStopList;
         IntArrayList sparseOfs = agency.tripStopOffsets;
 
-        // base = #stops + #routes (idx globaux)
-        final int tripBase = agency.stopCount() + agency.routeCount();
-
-        // sparseOfs remplissage -1
-        final int nTrips   = agency.tripCount();
-        if (sparseOfs.isEmpty()) for (int i = 0; i < nTrips; i++) sparseOfs.add(-1);
-
-
         // buffer trip (mémoire temporaire)
         IntArrayList bufStop   = new IntArrayList();
         IntArrayList bufSec    = new IntArrayList();
@@ -47,15 +39,15 @@ public final class StopTimesLoader {
 
         // parsing
         reader.forEach(row -> {
-            int globalTripIdx = agency.idDict.get(row[colTrip]);
-            if (globalTripIdx < 0) throw new IllegalStateException("trip_id inconnu: " + row[colTrip]);
+            int tripIdx = agency.idDict.get(row[colTrip]);
+            if (tripIdx < 0) throw new IllegalStateException("trip_id inconnu: " + row[colTrip]);
 
-            if (globalTripIdx != currentGlobalTrip[0]) { // changement de trip
-                save(currentGlobalTrip[0], bufStop, bufSec, stopIdxL, depSecL, denseOfs, sparseOfs, tripBase);
+            if (tripIdx != currentGlobalTrip[0]) { // changement de trip
+                save(currentGlobalTrip[0], bufStop, bufSec, stopIdxL, depSecL, denseOfs, sparseOfs);
                 // reset la mémoire temporaire
                 bufStop.clear();
                 bufSec.clear();
-                currentGlobalTrip[0] = globalTripIdx;
+                currentGlobalTrip[0] = tripIdx;
                 prevSeq[0] = -1;
             }
 
@@ -71,7 +63,7 @@ public final class StopTimesLoader {
             bufSec.add(toSec(row[colTime]));
         });
         // traitement du dernier trip
-        save(currentGlobalTrip[0], bufStop, bufSec, stopIdxL, depSecL, denseOfs, sparseOfs, tripBase);
+        save(currentGlobalTrip[0], bufStop, bufSec, stopIdxL, depSecL, denseOfs, sparseOfs);
         denseOfs.add(stopIdxL.size());
     }
 
@@ -79,7 +71,7 @@ public final class StopTimesLoader {
 
     private static void save(int tripIdx, IntArrayList bufStop, IntArrayList bufSec,
                              IntArrayList stopIdxL, IntArrayList depSecL, IntArrayList denseOfs,
-                             IntArrayList sparseOfs, int tripBase) {
+                             IntArrayList sparseOfs) {
 
         if (tripIdx < 0)        return; // skip premier appel
         if (bufStop.size() < 2) return; // "timepoint only"
