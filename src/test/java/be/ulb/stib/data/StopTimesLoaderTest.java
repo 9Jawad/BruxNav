@@ -1,6 +1,5 @@
 package be.ulb.stib.data;
 
-import be.ulb.stib.tools.StopTimesSorter;
 import be.ulb.stib.tools.UtilsForTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -17,9 +16,9 @@ class StopTimesLoaderTest {
 
     @Test
     void loadStopTimesMini() throws IOException {
-        Path stops  = UtilsForTest.copyToTemp("mini_stops_v2.csv",  tmp);
-        Path routes = UtilsForTest.copyToTemp("mini_routes_v3.csv", tmp);
-        Path trips  = UtilsForTest.copyToTemp("mini_trips_v2.csv",  tmp);
+        Path stops  = UtilsForTest.copyToTemp("forStopTimesLoader/mini_stops.csv",  tmp);
+        Path routes = UtilsForTest.copyToTemp("forStopTimesLoader/mini_routes.csv", tmp);
+        Path trips  = UtilsForTest.copyToTemp("forStopTimesLoader/mini_trips.csv",  tmp);
         Path times = UtilsForTest.copyToTemp("mini_stop_times.csv", tmp);
         
         AgencyModel agency = new AgencyModel();

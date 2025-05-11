@@ -17,7 +17,7 @@ class TripLoaderTest {
     // ---------- Test 1 : nombre de route ----------
     @Test
     void routeCountMatchesCsv() throws IOException {
-        Path routesCsv = UtilsForTest.copyToTemp("mini_routes_v2.csv", tmp);
+        Path routesCsv = UtilsForTest.copyToTemp("forTripLoader/mini_routes.csv", tmp);
         Path tripsCsv = UtilsForTest.copyToTemp("mini_trips.csv", tmp);
         AgencyModel agency = new AgencyModel();
         RouteLoader.load(routesCsv, agency);
@@ -30,7 +30,7 @@ class TripLoaderTest {
     // ---------- Test 2 : nombre de trip ----------
     @Test
     void tripCountMatchesCsv() throws IOException {
-        Path routesCsv = UtilsForTest.copyToTemp("mini_routes_v2.csv", tmp);
+        Path routesCsv = UtilsForTest.copyToTemp("forTripLoader/mini_routes.csv", tmp);
         Path tripsCsv = UtilsForTest.copyToTemp("mini_trips.csv", tmp);
         AgencyModel agency = new AgencyModel();
         RouteLoader.load(routesCsv, agency);
@@ -43,7 +43,7 @@ class TripLoaderTest {
     // ---------- Test 3 : mapping trip → route ----------
     @Test
     void tripIDMatchesLocalRouteID() throws IOException {
-        Path routesCsv = UtilsForTest.copyToTemp("mini_routes_v2.csv", tmp);
+        Path routesCsv = UtilsForTest.copyToTemp("forTripLoader/mini_routes.csv", tmp);
         Path tripsCsv  = UtilsForTest.copyToTemp("mini_trips.csv",  tmp);
         AgencyModel agency = new AgencyModel();
         RouteLoader.load(routesCsv, agency);
@@ -58,7 +58,7 @@ class TripLoaderTest {
     // ---------- Test 4 : tripIdx dans IDict ----------
     @Test
     void tripIdAreInIdDict() throws IOException {
-        Path routesCsv = UtilsForTest.copyToTemp("mini_routes_v2.csv", tmp);
+        Path routesCsv = UtilsForTest.copyToTemp("forTripLoader/mini_routes.csv", tmp);
         Path tripsCsv  = UtilsForTest.copyToTemp("mini_trips.csv",  tmp);
         AgencyModel agency = new AgencyModel();
         RouteLoader.load(routesCsv, agency);
