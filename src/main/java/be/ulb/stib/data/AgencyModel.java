@@ -8,7 +8,7 @@ import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 
 
 /* Conteneur des données d’une seule agence GTFS. */
-public final class AgencyModel {
+public class AgencyModel {
 
     // dictionnaire GTFS (dense)
     public final IDictionary idDict = new IDictionary();
