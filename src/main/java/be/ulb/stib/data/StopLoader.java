@@ -3,7 +3,8 @@ package be.ulb.stib.data;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import be.ulb.stib.tools.Utils;
+import static be.ulb.stib.tools.Utils.idx;
+import static be.ulb.stib.tools.Utils.ensureSize;
 
 
 /* Parse un fichier stops.csv et met à jour son AgencyModel. */
@@ -11,20 +12,20 @@ public final class StopLoader {
 
     public static void load(Path stopsCsv, AgencyModel agency) throws IOException {
         CsvReader reader = new CsvReader(stopsCsv);
-        int colId   = Utils.idx(reader.getHeaders(), "stop_id");
-        int colName = Utils.idx(reader.getHeaders(), "stop_name");
-        int colLat  = Utils.idx(reader.getHeaders(), "stop_lat");
-        int colLon  = Utils.idx(reader.getHeaders(), "stop_lon");
+        int colId   = idx(reader.getHeaders(), "stop_id");
+        int colName = idx(reader.getHeaders(), "stop_name");
+        int colLat  = idx(reader.getHeaders(), "stop_lat");
+        int colLon  = idx(reader.getHeaders(), "stop_lon");
 
         // parsing
         reader.forEach(row -> {
             int idx = agency.idDict.getOrAdd(row[colId]);
-            double lat = Double.parseDouble(row[colLat]);
-            double lon = Double.parseDouble(row[colLon]);
 
             // latitude - longitude
-            agency.latList.add(lat);
-            agency.lonList.add(lon);
+            ensureSize(agency.latList, idx, Double.NaN);
+            ensureSize(agency.lonList, idx, Double.NaN);
+            agency.latList.set(idx, Double.parseDouble(row[colLat]));
+            agency.lonList.set(idx, Double.parseDouble(row[colLon]));
 
             // pool nom ↔ index
             String name = row[colName];
@@ -32,7 +33,8 @@ public final class StopLoader {
                 agency.stopNamePool.add(k);
                 return agency.stopNamePool.size() - 1;
             });
-            agency.stopNameIdxList.add(nIdx);
+            ensureSize(agency.stopNameIdxList, idx, -1);
+            agency.stopNameIdxList.set(idx, nIdx);
         });
     }
 }

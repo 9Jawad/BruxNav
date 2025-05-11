@@ -43,9 +43,24 @@ public final class AgencyModel {
 
     /* =========================  INFO  ========================= */
     // Renvoie la taille d'une liste
-    public int tripCount()  { return tripRouteIdxList.size(); }
-    public int stopCount()  { return stopNameIdxList.size(); }
-    public int routeCount() { return routeShortIdxList.size(); }
+
+    public int stopCount()  {
+        int n = 0;
+        for (int s : stopNameIdxList) if (s != -1) n++;
+        return n;
+    }
+
+    public int tripCount() { // trips valides
+        int n = 0;
+        for (int r : tripRouteIdxList) if (r != -1) n++;
+        return n;
+    }
+
+    public int routeCount() { // (routes valides)
+        int n = 0;
+        for (byte t : routeTypeList) if (t != (byte)-1) n++;
+        return n;
+    }
 
     /* Verouille le dictionnaire. */
     public void freeze() { idDict.freeze(); }

@@ -50,9 +50,9 @@ class TripLoaderTest {
         TripLoader.load(tripsCsv, agency);
         agency.freeze();
 
-        assertEquals(0, agency.tripRouteIdxList.getInt(0));  // T1
-        assertEquals(0, agency.tripRouteIdxList.getInt(1));  // T2
-        assertEquals(1, agency.tripRouteIdxList.getInt(2));  // T3
+        assertEquals(0,  agency.tripRouteIdxList.getInt(2));  // T1
+        assertEquals(0, agency.tripRouteIdxList.getInt(3));  // T2
+        assertEquals(1,  agency.tripRouteIdxList.getInt(4));  // T3
     }
 
     // ---------- Test 4 : tripIdx dans IDict ----------

@@ -15,7 +15,6 @@ class StopTimesSorterTest {
 
     @TempDir Path tmp;
 
-
     @Test
     void sortAndReplace() throws IOException {
 

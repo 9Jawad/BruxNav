@@ -31,10 +31,12 @@ public class Main {
             Path stops  = agencyDir.resolve("stops.csv");
             Path routes = agencyDir.resolve("routes.csv");
             Path trips  = agencyDir.resolve("trips.csv");
+            Path times  = agencyDir.resolve("stop_times.csv");
 
             StopLoader.load(stops, a);
             RouteLoader.load(routes, a);
             TripLoader.load(trips, a);
+            StopTimesLoader.load(times, a);
             a.freeze();
 
             System.out.printf("  %d stops, %d routes, %d trips\n",

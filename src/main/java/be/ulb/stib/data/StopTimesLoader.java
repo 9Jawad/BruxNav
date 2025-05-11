@@ -1,23 +1,27 @@
 package be.ulb.stib.data;
 
-import be.ulb.stib.tools.Utils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
+import static be.ulb.stib.tools.Utils.idx;
+import static be.ulb.stib.tools.Utils.ensureSize;
+import static be.ulb.stib.tools.StopTimesSorter.sortAndReplace;
+
 
 /* Parse un fichier stop_times.csv et met à jour son AgencyModel. */
 public final class StopTimesLoader {
 
-    public static void load(Path csvPath, AgencyModel agency) throws IOException {
+    public static void load(Path stopTimesCsv, AgencyModel agency) throws IOException {
 
         // ========================= DATA =========================
-        CsvReader reader = new CsvReader(csvPath);
-        int colTrip = Utils.idx(reader.getHeaders(), "trip_id");
-        int colStop = Utils.idx(reader.getHeaders(), "stop_id");
-        int colTime = Utils.idx(reader.getHeaders(), "departure_time");
-        int colSeq  = Utils.idx(reader.getHeaders(), "stop_sequence");
+        sortAndReplace(stopTimesCsv);
+        CsvReader reader = new CsvReader(stopTimesCsv);
+        int colTrip = idx(reader.getHeaders(), "trip_id");
+        int colStop = idx(reader.getHeaders(), "stop_id");
+        int colTime = idx(reader.getHeaders(), "departure_time");
+        int colSeq  = idx(reader.getHeaders(), "stop_sequence");
 
         // alias
         IntArrayList stopIdxL = agency.stopIdxByTimeList;
@@ -73,17 +77,19 @@ public final class StopTimesLoader {
 
     /* ------------- helpers ------------- */
 
-    private static void save(int globalTripIdx, IntArrayList bufStop, IntArrayList bufSec,
+    private static void save(int tripIdx, IntArrayList bufStop, IntArrayList bufSec,
                              IntArrayList stopIdxL, IntArrayList depSecL, IntArrayList denseOfs,
                              IntArrayList sparseOfs, int tripBase) {
 
-        if (globalTripIdx < 0) return;  // skip premier appel
+        if (tripIdx < 0)        return; // skip premier appel
         if (bufStop.size() < 2) return; // "timepoint only"
 
         // ajout des données à l'AgencyModel
         int offset = stopIdxL.size();
         denseOfs.add(offset);
-        sparseOfs.set(globalTripIdx - tripBase, offset);
+        ensureSize(sparseOfs, tripIdx, -1);
+        sparseOfs.set(tripIdx, offset);
+
         stopIdxL.addAll(bufStop);
         depSecL.addAll(bufSec);
     }

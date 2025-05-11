@@ -39,7 +39,7 @@ class RouteLoaderTest {
         assertEquals(1,  agency.routeTypeList.getByte(41)); // TRAM
         assertEquals(2,  agency.routeTypeList.getByte(22)); // METRO
         assertEquals(3,  agency.routeTypeList.getByte(34)); // TRAIN
-        assertEquals(-1, agency.routeTypeList.getByte(45)); // OTHER
+        assertEquals(4, agency.routeTypeList.getByte(45)); // OTHER
 
     }
 
