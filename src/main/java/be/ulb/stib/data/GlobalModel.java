@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 
-/* Données fusionnées de toutes les agences, plus index spatial. */
+/* Conteneur des données fusionnées de toutes les agences, plus index spatial. */
 public final class GlobalModel extends AgencyModel {
 
     public final ObjectArrayList<IntArrayList> walkNeighbors = new ObjectArrayList<>();

@@ -24,10 +24,11 @@ public class Main {
             System.err.println("Not a directory: " + root);
             System.exit(1);
         }
+
+        // PARSING
+        System.out.println("\n===========================");
         List<AgencyModel> agencies = new ArrayList<>();
         long t0 = System.nanoTime();
-
-        System.out.println("\n===========================");
 
         // parcourir chaque sous-dossier (une agence)
         for (Path agencyDir : Files.list(root).filter(Files::isDirectory).toList()) {
@@ -50,16 +51,23 @@ public class Main {
             agencies.add(agency);
         }
         long t1 = System.nanoTime();
-        System.out.println("===========================\n");
-
         double secs = (t1 - t0) / 1e9;
+        System.out.println("===========================\n");
 
         int totalStops = agencies.stream().mapToInt(AgencyModel::stopCount).sum();
         int totalRoutes = agencies.stream().mapToInt(AgencyModel::routeCount).sum();
         int totalTrips = agencies.stream().mapToInt(AgencyModel::tripCount).sum();
 
         System.out.printf("Parsing completed in " + ANSI_GREEN + "%.2f s\n" + ANSI_RESET, secs);
-        System.out.printf("Total: %d stops, %d routes, %d trips across %d agencies\n\n",
+        System.out.printf("%d stops, %d routes, %d trips across %d agencies\n\n",
                 totalStops, totalRoutes, totalTrips, agencies.size());
+
+        // FUSION
+        GlobalModel model = LoaderPipeline.fuse(agencies);
+        long t2 = System.nanoTime();
+        secs = (t2 - t1) / 1e9;
+        System.out.printf("Fusion completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, secs);
+        secs = (t2 - t0) / 1e9;
+        System.out.printf("TOTAL TIME : " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, secs);
     }
 }
