@@ -2,12 +2,10 @@ package be.ulb.stib.data;
 
 import static be.ulb.stib.tools.Utils.loadAgency;
 import static org.junit.jupiter.api.Assertions.*;
-import be.ulb.stib.data.FusionVisualizer;
-import be.ulb.stib.tools.StopTimesSorter;
+import be.ulb.stib.parsing.LoaderPipeline;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import java.io.IOException;
-import java.nio.file.Files;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;

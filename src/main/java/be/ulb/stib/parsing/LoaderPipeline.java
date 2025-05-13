@@ -1,5 +1,7 @@
-package be.ulb.stib.data;
+package be.ulb.stib.parsing;
 
+import be.ulb.stib.data.AgencyModel;
+import be.ulb.stib.data.GlobalModel;
 import java.util.List;
 import static be.ulb.stib.tools.Utils.ensureSize;
 

@@ -1,6 +1,7 @@
 package be.ulb.stib;
 
 import be.ulb.stib.data.*;
+import be.ulb.stib.parsing.LoaderPipeline;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
