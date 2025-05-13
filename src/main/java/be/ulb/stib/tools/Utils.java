@@ -3,7 +3,6 @@ package be.ulb.stib.tools;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-
 import java.util.Arrays;
 
 

@@ -1,14 +1,12 @@
 package be.ulb.stib.data;
 
-import be.ulb.stib.tools.UtilsForTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import static be.ulb.stib.tools.UtilsForTest.copyToTemp;
 
 
 class CsvReaderTest {
@@ -18,7 +16,7 @@ class CsvReaderTest {
     // ---------- Test 1 : lecture header ----------
     @Test
     void readHeader() throws IOException {
-        Path csv = UtilsForTest.copyToTemp("mini.csv", tmp);
+        Path csv = copyToTemp("mini.csv", tmp);
         try (CsvReader reader = new CsvReader(csv)) {
             assertArrayEquals(new String[]{"id","name","type"}, reader.getHeaders());
         }
@@ -27,7 +25,7 @@ class CsvReaderTest {
     // ---------- Test 2 : lecture lignes ----------
     @Test
     void forEachCheckLines() throws IOException {
-        Path csv = UtilsForTest.copyToTemp("mini.csv", tmp);
+        Path csv = copyToTemp("mini.csv", tmp);
         try (CsvReader reader = new CsvReader(csv)) {
             reader.forEach(line -> readingLine(line));
         }

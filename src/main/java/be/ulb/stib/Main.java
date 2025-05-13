@@ -1,73 +1,109 @@
 package be.ulb.stib;
 
 import be.ulb.stib.data.*;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class Main {
 
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_GREEN = "\u001B[32m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
+    static double parsingSeconds;
+    static double fusionSeconds;
+
+    // Constantes pour la colorisation de l'output
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_GREEN = "\u001B[32m";
+    private static final String ANSI_YELLOW = "\u001B[33m";
+
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 1) {
-            System.err.println("Usage: java -jar target stibpath-1.0-SNAPSHOT.jar <gtfs-root>");
-            System.exit(1);
-        }
-        Path root = Path.of(args[0]);
-        if (!Files.isDirectory(root)) {
-            System.err.println("Not a directory: " + root);
-            System.exit(1);
-        }
 
-        // PARSING
+        Path rootDirectory = validateAndGetRootDirectory(args);        // Validation des arguments
+        List<AgencyModel> agencies = loadAgencyData(rootDirectory);    // Chargement des données des agences
+        displayLoadingStatistics(agencies);                            // Affichage des statistiques de chargement
+        fuseAgencyData(agencies);                                      // Fusion des données dans un modèle global
+    }
+
+    /* Valide les arguments et retourne le répertoire racine. */
+    private static Path validateAndGetRootDirectory(String[] args) {
+        if (args.length != 1) {
+            System.err.println("Usage: java -jar stibpath-1.0-SNAPSHOT.jar <gtfs-root>");
+            System.exit(1);
+        }
+        Path rootDirectory = Path.of(args[0]);
+        if (!Files.isDirectory(rootDirectory)) {
+            System.err.println("Not a directory: " + rootDirectory);
+            System.exit(1);
+        }
+        return rootDirectory;
+    }
+
+    /* Charge les données de toutes les agences présentes dans le répertoire racine. */
+    private static List<AgencyModel> loadAgencyData(Path rootDirectory) throws Exception {
         System.out.println("\n===========================");
         List<AgencyModel> agencies = new ArrayList<>();
-        long t0 = System.nanoTime();
 
-        // parcourir chaque sous-dossier (une agence)
-        for (Path agencyDir : Files.list(root).filter(Files::isDirectory).toList()) {
-            System.out.println("Parsing agency: " + ANSI_YELLOW + agencyDir.getFileName() + ANSI_RESET);
+        // Parcourir chaque sous-dossier (une agence)
+        List<Path> agencyDirectories = Files.list(rootDirectory)
+                .filter(Files::isDirectory)
+                .toList();
 
-            Path stops  = agencyDir.resolve("stops.csv");
-            Path routes = agencyDir.resolve("routes.csv");
-            Path trips  = agencyDir.resolve("trips.csv");
-            Path times  = agencyDir.resolve("stop_times.csv");
+        long startTime = System.nanoTime();
 
+        for (Path agencyDirectory : agencyDirectories) {
+            System.out.println("Parsing agency: " + ANSI_YELLOW + agencyDirectory.getFileName() + ANSI_RESET);
+
+            // Chemins vers les fichiers GTFS
+            Path stopsFile = agencyDirectory.resolve("stops.csv");
+            Path routesFile = agencyDirectory.resolve("routes.csv");
+            Path tripsFile = agencyDirectory.resolve("trips.csv");
+            Path stopTimesFile = agencyDirectory.resolve("stop_times.csv");
+
+            // Chargement des données
             AgencyModel agency = new AgencyModel();
-            StopLoader.load(stops, agency);
-            RouteLoader.load(routes, agency);
-            TripLoader.load(trips, agency);
-            StopTimesLoader.load(times, agency);
+            StopLoader.load(stopsFile, agency);
+            RouteLoader.load(routesFile, agency);
+            TripLoader.load(tripsFile, agency);
+            StopTimesLoader.load(stopTimesFile, agency);
             agency.freeze();
 
+            // Affichage des statistiques par agence
             System.out.printf("  %d stops, %d routes, %d trips\n",
-                              agency.stopCount(), agency.routeCount(), agency.tripCount());
+                    agency.stopCount(), agency.routeCount(), agency.tripCount());
             agencies.add(agency);
         }
-        long t1 = System.nanoTime();
-        double secs = (t1 - t0) / 1e9;
-        System.out.println("===========================\n");
 
+        long endTime = System.nanoTime();
+        parsingSeconds = (endTime - startTime) / 1e9;
+        System.out.println("===========================\n");
+        System.out.printf("Parsing completed in " + ANSI_GREEN + "%.2f s\n" + ANSI_RESET, parsingSeconds);
+
+        return agencies;
+    }
+
+    /* Affiche les statistiques globales du chargement des données. */
+    private static void displayLoadingStatistics(List<AgencyModel> agencies) {
         int totalStops = agencies.stream().mapToInt(AgencyModel::stopCount).sum();
         int totalRoutes = agencies.stream().mapToInt(AgencyModel::routeCount).sum();
         int totalTrips = agencies.stream().mapToInt(AgencyModel::tripCount).sum();
 
-        System.out.printf("Parsing completed in " + ANSI_GREEN + "%.2f s\n" + ANSI_RESET, secs);
         System.out.printf("%d stops, %d routes, %d trips across %d agencies\n\n",
                 totalStops, totalRoutes, totalTrips, agencies.size());
+    }
 
-        // FUSION
+    /* Fusionne les données des agences dans un modèle global et affiche les statistiques de temps. */
+    private static void fuseAgencyData(List<AgencyModel> agencies) {
+        long startTime = System.nanoTime();
+
+        // Fusion des données
         GlobalModel model = LoaderPipeline.fuse(agencies);
-        long t2 = System.nanoTime();
-        secs = (t2 - t1) / 1e9;
-        System.out.printf("Fusion completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, secs);
-        secs = (t2 - t0) / 1e9;
-        System.out.printf("TOTAL TIME : " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, secs);
+
+        long endTime = System.nanoTime();
+        fusionSeconds = (endTime - startTime) / 1e9;
+
+        // Affichage des statistiques de temps
+        System.out.printf("Fusion completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds);
+        System.out.printf("TOTAL TIME : " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds + parsingSeconds);
     }
 }

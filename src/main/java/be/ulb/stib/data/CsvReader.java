@@ -22,7 +22,7 @@ public class CsvReader implements AutoCloseable {
         Reader r = Files.newBufferedReader(csvPath, StandardCharsets.UTF_8);
         this.csv = new CSVReader(r);
         this.headers = next();
-        if (headers == null) throw new IOException("Fichier CSV vide: " + csvPath);
+        if (headers == null) throw new IOException("Empty CSV file: " + csvPath);
     }
 
     /* Renvoie l’en‑tête du fichier. */

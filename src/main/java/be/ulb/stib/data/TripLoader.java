@@ -1,9 +1,7 @@
 package be.ulb.stib.data;
 
-
 import java.io.IOException;
 import java.nio.file.Path;
-
 import static be.ulb.stib.tools.Utils.idx;
 import static be.ulb.stib.tools.Utils.ensureSize;
 

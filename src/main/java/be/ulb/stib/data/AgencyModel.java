@@ -10,7 +10,7 @@ import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 /* Conteneur des données d’une seule agence GTFS. */
 public class AgencyModel {
 
-    // dictionnaire GTFS (dense)
+    // dictionnaire d'ID
     public final IDictionary idDict = new IDictionary();
 
     /* =========================  STOPS  ========================= */
@@ -38,19 +38,18 @@ public class AgencyModel {
     /* ======================  STOPS_TIMES  ====================== */
     public final IntArrayList                  stopIdxByTimeList = new IntArrayList();
     public final IntArrayList                  depSecList        = new IntArrayList();
-    public final IntArrayList                  tripIdxStopList   = new IntArrayList();
-    public final IntArrayList                  tripStopOffsets   = new IntArrayList();
+    public final IntArrayList                  tripOfsDense   = new IntArrayList();
+    public final IntArrayList                  tripOfsSparse   = new IntArrayList();
 
     /* =========================  INFO  ========================= */
-    // Renvoie la taille d'une liste
 
-    public int stopCount()  {
+    public int stopCount()  { // (stops valides)
         int n = 0;
         for (int s : stopNameIdxList) if (s != -1) n++;
         return n;
     }
 
-    public int tripCount() { // trips valides
+    public int tripCount() { // (trips valides)
         int n = 0;
         for (int r : tripRouteIdxList) if (r != -1) n++;
         return n;

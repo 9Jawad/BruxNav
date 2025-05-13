@@ -24,7 +24,7 @@ public final class IDictionary implements Serializable {
     public int getOrAdd(String id) {
         int existing = get(id);
         if (existing != -1) return existing;
-        if (frozen) throw new IllegalStateException("IDictionary is frozen; cannot add id=" + id);
+        if (frozen) throw new IllegalStateException("IDictionary is frozen, cannot add id=" + id);
         int newIdx = size();
         i2s.add(id);
         s2i.put(id, newIdx);

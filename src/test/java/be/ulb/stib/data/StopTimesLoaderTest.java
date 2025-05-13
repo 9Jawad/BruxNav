@@ -16,10 +16,10 @@ class StopTimesLoaderTest {
 
     @Test
     void loadStopTimesMini() throws IOException {
-        Path stops  = UtilsForTest.copyToTemp("forStopTimesLoader/mini_stops.csv",  tmp);
-        Path routes = UtilsForTest.copyToTemp("forStopTimesLoader/mini_routes.csv", tmp);
-        Path trips  = UtilsForTest.copyToTemp("forStopTimesLoader/mini_trips.csv",  tmp);
-        Path times = UtilsForTest.copyToTemp("mini_stop_times.csv", tmp);
+        Path stops  = UtilsForTest.copyToTemp("forStopTimesLoader/stops.csv",  tmp);
+        Path routes = UtilsForTest.copyToTemp("forStopTimesLoader/routes.csv", tmp);
+        Path trips  = UtilsForTest.copyToTemp("forStopTimesLoader/trips.csv",  tmp);
+        Path times = UtilsForTest.copyToTemp("stop_times.csv", tmp);
         
         AgencyModel agency = new AgencyModel();
         StopLoader.load(stops, agency);
@@ -28,13 +28,12 @@ class StopTimesLoaderTest {
         StopTimesLoader.load(times, agency);
         agency.freeze();
 
-        // TEST : hard-codé
         /**
          * Après parsing :
          *   stopIdxByTime = [0,1,0,2]    (S1,S2,S1,S3)
          *   depSec        = [25200,25380,25500,25680]
          *   tripOfsDense  = [0,2,4]
-         *   tripOfsSparse = [0,2,-1]     (T3 ignoré)
+         *   tripOfsSparse = [-1, -1, -1, -1, 0, 2]     (T3 ignoré)
          */
 
         assertEquals(3, agency.stopCount());
@@ -43,7 +42,7 @@ class StopTimesLoaderTest {
 
         assertArrayEquals(new int[]{0,1,0,2},                    agency.stopIdxByTimeList.toIntArray());
         assertArrayEquals(new int[]{25200, 25380, 25680, 25500}, agency.depSecList.toIntArray());
-        assertArrayEquals(new int[]{0,2,4},                      agency.tripIdxStopList.toIntArray());
-        assertArrayEquals(new int[]{-1, -1, -1, -1, 0, 2},       agency.tripStopOffsets.toIntArray());
+        assertArrayEquals(new int[]{0,2,4},                      agency.tripOfsDense.toIntArray());
+        assertArrayEquals(new int[]{-1, -1, -1, -1, 0, 2},       agency.tripOfsSparse.toIntArray());
     }
 }

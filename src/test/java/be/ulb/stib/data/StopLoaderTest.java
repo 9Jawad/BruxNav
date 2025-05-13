@@ -18,7 +18,7 @@ class StopLoaderTest {
     // ---------- Test 1 : nombre de stop_id ----------
     @Test
     void stopIdCountMatchesCsvLineCount() throws IOException {
-        Path csv = UtilsForTest.copyToTemp("mini_stops.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("stops.csv", tmp);
         AgencyModel agency = new AgencyModel();
         StopLoader.load(csv, agency);
         agency.freeze();
@@ -30,7 +30,7 @@ class StopLoaderTest {
     // ---------- Test 2 : premiers noms ----------
     @Test
     void sampleStopNamesAreCorrect() throws IOException {
-        Path csv = UtilsForTest.copyToTemp("mini_stops.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("stops.csv", tmp);
         AgencyModel agency = new AgencyModel();
         StopLoader.load(csv, agency);
         agency.freeze();
@@ -43,7 +43,7 @@ class StopLoaderTest {
     // ---------- Test 3 : mapping nom ↔ index ----------
     @Test
     void nameIndexMappingIsCorrect() throws IOException {
-        Path csv = UtilsForTest.copyToTemp("mini_stops.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("stops.csv", tmp);
         AgencyModel agency = new AgencyModel();
         StopLoader.load(csv, agency);
         agency.freeze();
@@ -55,7 +55,7 @@ class StopLoaderTest {
     // ---------- Test 4: latitudes ----------
     @Test
     void sampleLatitudesAreCorrect() throws IOException {
-        Path csv = UtilsForTest.copyToTemp("mini_stops.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("stops.csv", tmp);
         AgencyModel agency = new AgencyModel();
         StopLoader.load(csv, agency);
         agency.freeze();
@@ -68,7 +68,7 @@ class StopLoaderTest {
     // ---------- Test 5 : longitudes ----------
     @Test
     void sampleLongitudesAreCorrect() throws IOException {
-        Path csv = UtilsForTest.copyToTemp("mini_stops.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("stops.csv", tmp);
         AgencyModel agency = new AgencyModel();
         StopLoader.load(csv, agency);
         agency.freeze();

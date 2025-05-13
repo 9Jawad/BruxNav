@@ -1,10 +1,8 @@
 package be.ulb.stib.data;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-
 import java.io.IOException;
 import java.nio.file.Path;
-
 import static be.ulb.stib.tools.Utils.idx;
 import static be.ulb.stib.tools.Utils.ensureSize;
 import static be.ulb.stib.tools.StopTimesSorter.sortAndReplace;
@@ -26,8 +24,8 @@ public final class StopTimesLoader {
         // alias
         IntArrayList stopIdxL = agency.stopIdxByTimeList;
         IntArrayList depSecL  = agency.depSecList;
-        IntArrayList denseOfs = agency.tripIdxStopList;
-        IntArrayList sparseOfs = agency.tripStopOffsets;
+        IntArrayList denseOfs = agency.tripOfsDense;
+        IntArrayList sparseOfs = agency.tripOfsSparse;
 
         // buffer trip (mémoire temporaire)
         IntArrayList bufStop   = new IntArrayList();
@@ -40,7 +38,7 @@ public final class StopTimesLoader {
         // parsing
         reader.forEach(row -> {
             int tripIdx = agency.idDict.get(row[colTrip]);
-            if (tripIdx < 0) throw new IllegalStateException("trip_id inconnu: " + row[colTrip]);
+            if (tripIdx < 0) throw new IllegalStateException("unknown trip_id : " + row[colTrip]);
 
             if (tripIdx != currentGlobalTrip[0]) { // changement de trip
                 save(currentGlobalTrip[0], bufStop, bufSec, stopIdxL, depSecL, denseOfs, sparseOfs);
@@ -52,12 +50,11 @@ public final class StopTimesLoader {
             }
 
             int seq = Integer.parseInt(row[colSeq]);
-            if (seq <= prevSeq[0]) throw new IllegalStateException("stop_sequence non croissant (.csv non trié !!!) "
-                                                                    + row[colTrip]);
+            if (seq <= prevSeq[0]) throw new IllegalStateException("stop_sequence not increasing : " + row[colTrip]);
             prevSeq[0] = seq;
 
             int stopIdx = agency.idDict.get(row[colStop]);
-            if (stopIdx < 0) throw new IllegalStateException("stop_id inconnu: " + row[colStop]);
+            if (stopIdx < 0) throw new IllegalStateException("unknown stop_id : " + row[colStop]);
 
             bufStop.add(stopIdx);
             bufSec.add(toSec(row[colTime]));
@@ -66,8 +63,6 @@ public final class StopTimesLoader {
         save(currentGlobalTrip[0], bufStop, bufSec, stopIdxL, depSecL, denseOfs, sparseOfs);
         denseOfs.add(stopIdxL.size());
     }
-
-    /* ------------- helpers ------------- */
 
     private static void save(int tripIdx, IntArrayList bufStop, IntArrayList bufSec,
                              IntArrayList stopIdxL, IntArrayList depSecL, IntArrayList denseOfs,
@@ -85,6 +80,8 @@ public final class StopTimesLoader {
         stopIdxL.addAll(bufStop);
         depSecL.addAll(bufSec);
     }
+
+    /* ------------- helpers ------------- */
 
     private static int toSec(String hhmmss) {
         String[] p = hhmmss.split(":");

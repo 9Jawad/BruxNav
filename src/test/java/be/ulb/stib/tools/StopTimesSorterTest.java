@@ -18,7 +18,7 @@ class StopTimesSorterTest {
     @Test
     void sortAndReplace() throws IOException {
 
-        Path csv = UtilsForTest.copyToTemp("mini_sort.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("sort.csv", tmp);
         long nLines = Files.lines(csv).count();
         StopTimesSorter.sortAndReplace(csv);
 
@@ -34,21 +34,18 @@ class StopTimesSorterTest {
         String prevTrip = "";
         int    prevSeq  = -1;
 
-        System.out.println("\n=== .csv sorted ===");
+        // System.out.println("\n=== .csv sorted ===");
         for (int i = 1; i < lines.size(); i++) {
-            System.out.println(lines.get(i));
+            // System.out.println(lines.get(i));
             String[] parts = lines.get(i).split(",", 4);
 
             String trip = parts[0];
             int seq = Integer.parseInt(parts[3]);
 
-            if (trip.equals(prevTrip)) assertTrue(seq >= prevSeq); // croissant
-            else {
-                assertTrue(trip.compareTo(prevTrip) > 0);          // groupé
-                prevTrip = trip;
-            }
+            if (trip.equals(prevTrip)) assertTrue(seq >= prevSeq);              // croissant
+            else { assertTrue(trip.compareTo(prevTrip) > 0); prevTrip = trip; } // groupé
             prevSeq = seq;
         }
-        System.out.println("===================\n");
+        // System.out.println("===================\n");
     }
 }

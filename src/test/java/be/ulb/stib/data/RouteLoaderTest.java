@@ -18,7 +18,7 @@ class RouteLoaderTest {
     // ---------- Test 1 : nombre de route_id ----------
     @Test
     void routeIdCountMatchesCsvLineCount() throws IOException {
-        Path csv = UtilsForTest.copyToTemp("mini_routes.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("routes.csv", tmp);
         AgencyModel agency = new AgencyModel();
         RouteLoader.load(csv, agency);
         agency.freeze();
@@ -30,7 +30,7 @@ class RouteLoaderTest {
     // ---------- Test 2 : type route ----------
     @Test
     void sampleRouteTypesAreCorrect() throws IOException {
-        Path csv = UtilsForTest.copyToTemp("mini_routes.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("routes.csv", tmp);
         AgencyModel agency = new AgencyModel();
         RouteLoader.load(csv, agency);
         agency.freeze();
@@ -39,14 +39,13 @@ class RouteLoaderTest {
         assertEquals(1,  agency.routeTypeList.getByte(41)); // TRAM
         assertEquals(2,  agency.routeTypeList.getByte(22)); // METRO
         assertEquals(3,  agency.routeTypeList.getByte(34)); // TRAIN
-        assertEquals(4, agency.routeTypeList.getByte(45)); // OTHER
-
+        assertEquals(4,  agency.routeTypeList.getByte(45)); // OTHER
     }
 
     // ---------- Test 3 : premiers short_name ----------
     @Test
     void sampleRouteSNamesAreCorrect() throws IOException {
-        Path csv = UtilsForTest.copyToTemp("mini_routes.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("routes.csv", tmp);
         AgencyModel agency = new AgencyModel();
         RouteLoader.load(csv, agency);
         agency.freeze();
@@ -60,7 +59,7 @@ class RouteLoaderTest {
     // ---------- Test 4 : premiers long_name ----------
     @Test
     void sampleRouteLNamesAreCorrect() throws IOException {
-        Path csv = UtilsForTest.copyToTemp("mini_routes.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("routes.csv", tmp);
         AgencyModel agency = new AgencyModel();
         RouteLoader.load(csv, agency);
         agency.freeze();
@@ -74,7 +73,7 @@ class RouteLoaderTest {
     // ---------- Test 5 : mapping short name ↔ index ----------
     @Test
     void shortNameIndexMappingIsCorrect() throws IOException {
-        Path csv = UtilsForTest.copyToTemp("mini_routes.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("routes.csv", tmp);
         AgencyModel agency = new AgencyModel();
         RouteLoader.load(csv, agency);
         agency.freeze();
@@ -88,7 +87,7 @@ class RouteLoaderTest {
     // ---------- Test 6 : mapping long name ↔ index ----------
     @Test
     void longNameIndexMappingIsCorrect() throws IOException {
-        Path csv = UtilsForTest.copyToTemp("mini_routes.csv", tmp);
+        Path csv = UtilsForTest.copyToTemp("routes.csv", tmp);
         AgencyModel agency = new AgencyModel();
         RouteLoader.load(csv, agency);
         agency.freeze();
