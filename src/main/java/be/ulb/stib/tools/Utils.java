@@ -1,6 +1,10 @@
 package be.ulb.stib.tools;
 
 import be.ulb.stib.data.*;
+import be.ulb.stib.parsing.RouteLoader;
+import be.ulb.stib.parsing.StopLoader;
+import be.ulb.stib.parsing.StopTimesLoader;
+import be.ulb.stib.parsing.TripLoader;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;

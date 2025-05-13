@@ -1,5 +1,6 @@
-package be.ulb.stib.data;
+package be.ulb.stib.parsing;
 
+import be.ulb.stib.data.AgencyModel;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;

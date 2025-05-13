@@ -1,4 +1,4 @@
-package be.ulb.stib.data;
+package be.ulb.stib.tools;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;

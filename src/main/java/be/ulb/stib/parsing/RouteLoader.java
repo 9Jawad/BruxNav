@@ -1,5 +1,7 @@
-package be.ulb.stib.data;
+package be.ulb.stib.parsing;
 
+import be.ulb.stib.data.AgencyModel;
+import be.ulb.stib.tools.CsvReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import static be.ulb.stib.tools.Utils.idx;
