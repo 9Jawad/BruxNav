@@ -1,11 +1,11 @@
-package be.ulb.stib.data;
+package be.ulb.stib.parsing;
 
 import static be.ulb.stib.tools.Utils.loadAgency;
 import static org.junit.jupiter.api.Assertions.*;
-import be.ulb.stib.parsing.LoaderPipeline;
+import be.ulb.stib.data.AgencyModel;
+import be.ulb.stib.data.GlobalModel;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;

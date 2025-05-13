@@ -63,6 +63,8 @@ public final class LoaderPipeline {
         }
     }
 
+    // -----------------------
+
     /* Fusionne les stops d'une agence dans le modèle global. */
     private static void mergeStops(GlobalModel globalModel, AgencyModel agency, int offset) {
         // Fusion des pools partagés pour les stops
