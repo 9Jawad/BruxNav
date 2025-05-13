@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import static be.ulb.stib.tools.Utils.loadAgency;
 
 public class Main {
 
@@ -45,32 +46,18 @@ public class Main {
         List<AgencyModel> agencies = new ArrayList<>();
 
         // Parcourir chaque sous-dossier (une agence)
-        List<Path> agencyDirectories = Files.list(rootDirectory)
-                .filter(Files::isDirectory)
-                .toList();
+        List<Path> agencyDirectories = Files.list(rootDirectory).filter(Files::isDirectory).toList();
 
         long startTime = System.nanoTime();
 
         for (Path agencyDirectory : agencyDirectories) {
             System.out.println("Parsing agency: " + ANSI_YELLOW + agencyDirectory.getFileName() + ANSI_RESET);
 
-            // Chemins vers les fichiers GTFS
-            Path stopsFile = agencyDirectory.resolve("stops.csv");
-            Path routesFile = agencyDirectory.resolve("routes.csv");
-            Path tripsFile = agencyDirectory.resolve("trips.csv");
-            Path stopTimesFile = agencyDirectory.resolve("stop_times.csv");
-
-            // Chargement des données
-            AgencyModel agency = new AgencyModel();
-            StopLoader.load(stopsFile, agency);
-            RouteLoader.load(routesFile, agency);
-            TripLoader.load(tripsFile, agency);
-            StopTimesLoader.load(stopTimesFile, agency);
-            agency.freeze();
+            AgencyModel agency = loadAgency(agencyDirectory);
 
             // Affichage des statistiques par agence
-            System.out.printf("  %d stops, %d routes, %d trips\n",
-                    agency.stopCount(), agency.routeCount(), agency.tripCount());
+            System.out.printf("  %d stops, %d routes, %d trips\n", agency.stopCount(), agency.routeCount(),
+                                                                   agency.tripCount());
             agencies.add(agency);
         }
 

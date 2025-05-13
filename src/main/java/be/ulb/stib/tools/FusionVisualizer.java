@@ -5,14 +5,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import static be.ulb.stib.tools.Utils.loadAgency;
 
 
+/* Affiche la fusion entre deux agences (Only Debugging Method) */
 public class FusionVisualizer {
 
     public static void display() throws Exception {
 
         Path root = Paths.get("src/test/resources/forLoaderPipeline");
-
         AgencyModel m1 = loadAgency(root.resolve("A"));
         AgencyModel m2 = loadAgency(root.resolve("B"));
 
@@ -25,16 +26,6 @@ public class FusionVisualizer {
         System.out.println("\n=== GLOBAL MODEL ===");
         GlobalModel g = LoaderPipeline.fuse(List.of(m1, m2));
         printAgency(g);
-    }
-
-    private static AgencyModel loadAgency(Path dir) throws Exception {
-        AgencyModel m = new AgencyModel();
-        StopLoader.load(dir.resolve("stops.csv"), m);
-        RouteLoader.load(dir.resolve("routes.csv"), m);
-        TripLoader.load(dir.resolve("trips.csv"), m);
-        StopTimesLoader.load(dir.resolve("stop_times.csv"), m);
-        m.freeze();
-        return m;
     }
 
     private static void printAgency(AgencyModel m) {

@@ -1,14 +1,15 @@
 package be.ulb.stib.data;
 
+import static be.ulb.stib.tools.Utils.loadAgency;
 import static org.junit.jupiter.api.Assertions.*;
 import be.ulb.stib.data.FusionVisualizer;
 import be.ulb.stib.tools.StopTimesSorter;
-import be.ulb.stib.tools.UtilsForTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 
@@ -19,28 +20,9 @@ class LoaderPipelineTest {
     @Test
     void fuseTwoAgenciesWholeLists() throws Exception {
          // FusionVisualizer.display();
-
-        AgencyModel m1 = new AgencyModel();
-        AgencyModel m2 = new AgencyModel();
-
-        for (String modele : List.of("A", "B")) {
-            // Crée le dossier tmp/A ou tmp/B
-            Path agencyDir = tmp.resolve(modele);
-            Files.createDirectory(agencyDir);
-
-            // Copie les fichiers dans tmp/A, tmp/B
-            Path stops  = UtilsForTest.copyToTemp("forLoaderPipeline/"+modele+"/stops.csv",  agencyDir);
-            Path routes = UtilsForTest.copyToTemp("forLoaderPipeline/"+modele+"/routes.csv", agencyDir);
-            Path trips  = UtilsForTest.copyToTemp("forLoaderPipeline/"+modele+"/trips.csv",  agencyDir);
-            Path times  = UtilsForTest.copyToTemp("forLoaderPipeline/"+modele+"/stop_times.csv", agencyDir);
-
-            AgencyModel m = modele.equals("A") ? m1 : m2;
-            StopLoader.load(stops, m);
-            RouteLoader.load(routes, m);
-            TripLoader.load(trips, m);
-            StopTimesLoader.load(times, m);
-            m.freeze();
-        }
+        Path root = Paths.get("src/test/resources/forLoaderPipeline");
+        AgencyModel m1 = loadAgency(root.resolve("A"));
+        AgencyModel m2 = loadAgency(root.resolve("B"));
 
         // Fusion
         GlobalModel g = LoaderPipeline.fuse(List.of(m1, m2));

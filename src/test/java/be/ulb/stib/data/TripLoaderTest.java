@@ -1,13 +1,11 @@
 package be.ulb.stib.data;
 
-import be.ulb.stib.tools.UtilsForTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
 import java.io.IOException;
 import java.nio.file.Path;
-
 import static org.junit.jupiter.api.Assertions.*;
+import static be.ulb.stib.tools.Utils.copyToTemp;
 
 
 class TripLoaderTest {
@@ -17,8 +15,8 @@ class TripLoaderTest {
     // ---------- Test 1 : nombre de route ----------
     @Test
     void routeCountMatchesCsv() throws IOException {
-        Path routesCsv = UtilsForTest.copyToTemp("forTripLoader/routes.csv", tmp);
-        Path tripsCsv = UtilsForTest.copyToTemp("trips.csv", tmp);
+        Path routesCsv = copyToTemp("forTripLoader/routes.csv", tmp);
+        Path tripsCsv = copyToTemp("trips.csv", tmp);
         AgencyModel agency = new AgencyModel();
         RouteLoader.load(routesCsv, agency);
         TripLoader.load(tripsCsv, agency);
@@ -30,8 +28,8 @@ class TripLoaderTest {
     // ---------- Test 2 : nombre de trip ----------
     @Test
     void tripCountMatchesCsv() throws IOException {
-        Path routesCsv = UtilsForTest.copyToTemp("forTripLoader/routes.csv", tmp);
-        Path tripsCsv = UtilsForTest.copyToTemp("trips.csv", tmp);
+        Path routesCsv = copyToTemp("forTripLoader/routes.csv", tmp);
+        Path tripsCsv = copyToTemp("trips.csv", tmp);
         AgencyModel agency = new AgencyModel();
         RouteLoader.load(routesCsv, agency);
         TripLoader.load(tripsCsv, agency);
@@ -43,8 +41,8 @@ class TripLoaderTest {
     // ---------- Test 3 : mapping trip → route ----------
     @Test
     void tripIDMatchesLocalRouteID() throws IOException {
-        Path routesCsv = UtilsForTest.copyToTemp("forTripLoader/routes.csv", tmp);
-        Path tripsCsv  = UtilsForTest.copyToTemp("trips.csv",  tmp);
+        Path routesCsv = copyToTemp("forTripLoader/routes.csv", tmp);
+        Path tripsCsv  = copyToTemp("trips.csv",  tmp);
         AgencyModel agency = new AgencyModel();
         RouteLoader.load(routesCsv, agency);
         TripLoader.load(tripsCsv, agency);
@@ -58,8 +56,8 @@ class TripLoaderTest {
     // ---------- Test 4 : tripIdx dans IDict ----------
     @Test
     void tripIdAreInIdDict() throws IOException {
-        Path routesCsv = UtilsForTest.copyToTemp("forTripLoader/routes.csv", tmp);
-        Path tripsCsv  = UtilsForTest.copyToTemp("trips.csv",  tmp);
+        Path routesCsv = copyToTemp("forTripLoader/routes.csv", tmp);
+        Path tripsCsv  = copyToTemp("trips.csv",  tmp);
         AgencyModel agency = new AgencyModel();
         RouteLoader.load(routesCsv, agency);
         TripLoader.load(tripsCsv, agency);

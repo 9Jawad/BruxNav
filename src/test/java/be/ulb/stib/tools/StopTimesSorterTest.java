@@ -2,12 +2,11 @@ package be.ulb.stib.tools;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
+import static be.ulb.stib.tools.Utils.copyToTemp;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -18,7 +17,7 @@ class StopTimesSorterTest {
     @Test
     void sortAndReplace() throws IOException {
 
-        Path csv = UtilsForTest.copyToTemp("sort.csv", tmp);
+        Path csv = copyToTemp("sort.csv", tmp);
         long nLines = Files.lines(csv).count();
         StopTimesSorter.sortAndReplace(csv);
 
