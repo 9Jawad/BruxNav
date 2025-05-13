@@ -1,6 +1,6 @@
 package be.ulb.stib.spatial;
 
-class Node {
+final class Node {
     final int stopIdx;        // Valeur  index global du stop
     final double lat, lon;    //         coordonnées
     Node left, right;         // Enfants

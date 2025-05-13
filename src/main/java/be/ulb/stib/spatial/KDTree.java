@@ -11,7 +11,7 @@ import java.util.List;
  * KD-Tree pour indexer les stops du GlobalModel.
  * Permet de trouver l'arret le plus proche et ceux dans un rayon de x mètres.
  */
-public class KDTree {
+public final class KDTree {
 
     private final Node root;
 
