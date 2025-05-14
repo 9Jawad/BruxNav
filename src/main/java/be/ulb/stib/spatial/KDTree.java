@@ -99,9 +99,9 @@ public final class KDTree {
     // -----------------------
 
     /* Renvoie la liste des stopIdx dont la distance euclidienne au point (lat, lon) ≤ rayon. */
-    public List<Integer> rangeSearch(double lat, double lon, int meters) {
-        if (meters < 0) throw new IllegalArgumentException("range must be positive");
-        double radius = meter2radius(meters);
+    public List<Integer> rangeSearch(double lat, double lon, int radiusInMeters) {
+        if (radiusInMeters < 0) throw new IllegalArgumentException("range must be positive");
+        double radius = meters2degrees(radiusInMeters);
 
         List<Integer> result = new ArrayList<>();
         _rangeSearch(root, lat, lon, radius*radius, result);
@@ -143,7 +143,7 @@ public final class KDTree {
         double dist = Double.POSITIVE_INFINITY;
     }
 
-    private double meter2radius(int meters) {
+    private double meters2degrees(int meters) {
         return meters / 111_000.0; // 1° ≈ 111 km (approximation suffisante)
     }
 }

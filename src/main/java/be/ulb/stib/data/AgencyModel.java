@@ -14,12 +14,12 @@ public class AgencyModel {
     public final IDictionary idDict = new IDictionary();
 
     /* =========================  STOPS  ========================= */
-    public final DoubleArrayList               latList         = new DoubleArrayList();
-    public final DoubleArrayList               lonList         = new DoubleArrayList();
-    public final IntArrayList                  stopNameIdxList = new IntArrayList();
+    public DoubleArrayList               latList         = new DoubleArrayList();
+    public DoubleArrayList               lonList         = new DoubleArrayList();
+    public IntArrayList                  stopNameIdxList = new IntArrayList();
     // pool de noms d’arrêt
-    public final ObjectArrayList<String>       stopNamePool    = new ObjectArrayList<>();
-    public final Object2IntOpenHashMap<String> stopName2idx    = new Object2IntOpenHashMap<>();
+    public ObjectArrayList<String>       stopNamePool    = new ObjectArrayList<>();
+    public Object2IntOpenHashMap<String> stopName2idx    = new Object2IntOpenHashMap<>();
 
     /* =========================  ROUTES  ========================= */
     public final ByteArrayList                 routeTypeList     = new ByteArrayList();
