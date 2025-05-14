@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 
 
 /* Lecture de fichier CSV. */
-public class CsvReader implements AutoCloseable {
+public final class CsvReader implements AutoCloseable {
 
     private final CSVReader csv;
     private final String[] headers;

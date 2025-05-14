@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 
-public class Utils {
+public final class Utils {
 
     public static int idx(String[] hdr, String key) {
         int i = Arrays.asList(hdr).indexOf(key);

@@ -9,7 +9,7 @@ import static be.ulb.stib.tools.Utils.loadAgency;
 
 
 /* Affiche la fusion entre deux agences (Only Debugging Method) */
-public class FusionVisualizer {
+public final class FusionVisualizer {
 
     public static void display() throws Exception {
 
