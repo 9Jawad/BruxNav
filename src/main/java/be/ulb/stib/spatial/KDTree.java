@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import static be.ulb.stib.tools.Utils.subList;
 
+
 /**
  * KD-Tree pour indexer les stops du GlobalModel.
  * Permet de trouver l'arret le plus proche et ceux dans un rayon de x mètres.
@@ -74,7 +75,7 @@ public final class KDTree {
         // distance euclidienne (pas sqrt = perf)
         double dLat = node.lat - lat;
         double dLon = node.lon - lon;
-        double dist = dLat*dLat + dLon*dLon;
+        double dist = squaredNorm(dLat, dLon);
 
         // trouvé un meilleur point
         if (dist < best.dist) {
@@ -115,7 +116,7 @@ public final class KDTree {
         // distance euclidienne (pas sqrt = perf)
         double dLat = node.lat - lat;
         double dLon = node.lon - lon;
-        double dist = dLat*dLat + dLon*dLon;
+        double dist = squaredNorm(dLat, dLon);
 
         // point dans le rayon
         if (dist <= radius && node.stopIdx != excludeIdx) {
@@ -145,5 +146,9 @@ public final class KDTree {
 
     private double meters2degrees(int meters) {
         return meters / 111_000.0; // 1° ≈ 111 km (approximation suffisante)
+    }
+
+    public static double squaredNorm(double dLat, double dLon) {
+        return dLat*dLat + dLon*dLon;
     }
 }

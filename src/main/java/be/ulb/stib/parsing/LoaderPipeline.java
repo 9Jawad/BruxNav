@@ -2,6 +2,7 @@ package be.ulb.stib.parsing;
 
 import be.ulb.stib.data.AgencyModel;
 import be.ulb.stib.data.GlobalModel;
+import be.ulb.stib.spatial.WalkEdgeGenerator;
 import java.util.List;
 import static be.ulb.stib.tools.Utils.ensureSize;
 
@@ -9,17 +10,15 @@ import static be.ulb.stib.tools.Utils.ensureSize;
 /* Fusionne toutes les données des agences */
 public final class LoaderPipeline {
 
-    static final int NEARBY = 500; // mètres
-
     public static GlobalModel fuse(List<AgencyModel> agencies) {
-        GlobalModel globalModel = new GlobalModel();
+        GlobalModel model = new GlobalModel();
 
-        int totalSize = calculateTotalSize(agencies);     // 1) Calcul taille totale listes
-        initializeSparseArrays(globalModel, totalSize);   // 2) Initialisation des listes avec "-1"
-        mergeDatasFromAgencies(globalModel, agencies);    // 3) Fusion des données de chaque agence
-        globalModel.initSpatial(NEARBY);                  // 4) Initialisation des listes d'index spatial
+        int totalSize = calculateTotalSize(agencies); // 1) Calcul taille totale listes
+        initializeSparseArrays(model, totalSize);     // 2) Initialisation des listes avec "-1"
+        mergeDatasFromAgencies(model, agencies);      // 3) Fusion des données de chaque agence
+        WalkEdgeGenerator.build(model);               // 4) Initialisation de walkEdges + cout
 
-        return globalModel;
+        return model;
     }
 
     /* Calcule la taille totale nécessaire pour les listes. */
@@ -32,30 +31,30 @@ public final class LoaderPipeline {
     }
 
     /* Initialise les tableaux sparse à leur taille finale. */
-    private static void initializeSparseArrays(GlobalModel globalModel, int totalSize) {
-        ensureSize(globalModel.lonList,           totalSize, -1);
-        ensureSize(globalModel.latList,           totalSize, -1);
-        ensureSize(globalModel.routeTypeList,     totalSize, (byte)-1);
-        ensureSize(globalModel.routeShortIdxList, totalSize, -1);
-        ensureSize(globalModel.routeLongIdxList,  totalSize, -1);
-        ensureSize(globalModel.tripRouteIdxList,  totalSize, -1);
-        ensureSize(globalModel.tripOfsSparse,     totalSize, -1);
-        ensureSize(globalModel.stopNameIdxList,   totalSize, -1);
+    private static void initializeSparseArrays(GlobalModel model, int totalSize) {
+        ensureSize(model.lonList,           totalSize, -1);
+        ensureSize(model.latList,           totalSize, -1);
+        ensureSize(model.routeTypeList,     totalSize, (byte)-1);
+        ensureSize(model.routeShortIdxList, totalSize, -1);
+        ensureSize(model.routeLongIdxList,  totalSize, -1);
+        ensureSize(model.tripRouteIdxList,  totalSize, -1);
+        ensureSize(model.tripOfsSparse,     totalSize, -1);
+        ensureSize(model.stopNameIdxList,   totalSize, -1);
     }
 
     /* Fusionne les données de chaque agence dans le modèle global. */
-    private static void mergeDatasFromAgencies(GlobalModel globalModel, List<AgencyModel> agencies) {
+    private static void mergeDatasFromAgencies(GlobalModel model, List<AgencyModel> agencies) {
         int offset = 0;
         int globalDenseOffset = 0;
         boolean firstAgency = true;
 
         for (AgencyModel agency : agencies) {
 
-            mergeStops(globalModel,     agency, offset); // Fusion des stops
-            mergeRoutes(globalModel,    agency, offset); // Fusion des routes
-            mergeTrips(globalModel,     agency, offset); // Fusion des trips
-            mergeStopTimes(globalModel, agency, offset); // Fusion des stop_times
-            mergeOffsets(globalModel,   agency, offset,  // Fusion des offsets
+            mergeStops(model,     agency, offset); // Fusion des stops
+            mergeRoutes(model,    agency, offset); // Fusion des routes
+            mergeTrips(model,     agency, offset); // Fusion des trips
+            mergeStopTimes(model, agency, offset); // Fusion des stop_times
+            mergeOffsets(model,   agency, offset,  // Fusion des offsets
                          globalDenseOffset, firstAgency);
 
             // Mise à jour des offsets
@@ -68,42 +67,42 @@ public final class LoaderPipeline {
     // -----------------------
 
     /* Fusionne les stops d'une agence dans le modèle global. */
-    private static void mergeStops(GlobalModel globalModel, AgencyModel agency, int offset) {
+    private static void mergeStops(GlobalModel model, AgencyModel agency, int offset) {
         // Fusion des pools partagés pour les stops
         for (String stopName : agency.stopNamePool) {
-            globalModel.stopName2idx.computeIntIfAbsent(stopName, key -> {
-                globalModel.stopNamePool.add(key);
-                return globalModel.stopNamePool.size() - 1;
+            model.stopName2idx.computeIntIfAbsent(stopName, key -> {
+                model.stopNamePool.add(key);
+                return model.stopNamePool.size() - 1;
             });
         }
 
         // Copie des stops
         for (int i = 0; i < agency.latList.size(); i++) {
-            globalModel.latList.set(offset + i, agency.latList.getDouble(i));
-            globalModel.lonList.set(offset + i, agency.lonList.getDouble(i));
+            model.latList.set(offset + i, agency.latList.getDouble(i));
+            model.lonList.set(offset + i, agency.lonList.getDouble(i));
 
             String stopName = agency.stopNamePool.get(agency.stopNameIdxList.getInt(i));
-            globalModel.stopNameIdxList.set(offset + i, globalModel.stopName2idx.getInt(stopName));
+            model.stopNameIdxList.set(offset + i, model.stopName2idx.getInt(stopName));
 
             // Lookup global ID → index
             String stopId = agency.idDict.get(i);
-            globalModel.idx.put(stopId, offset + i);
+            model.idx.put(stopId, offset + i);
         }
     }
 
     /* Fusionne les routes d'une agence dans le modèle global. */
-    private static void mergeRoutes(GlobalModel globalModel, AgencyModel agency, int offset) {
+    private static void mergeRoutes(GlobalModel model, AgencyModel agency, int offset) {
         // Fusion des pools partagés pour les routes
         for (String shortName : agency.routeShortPool) {
-            globalModel.routeShort2idx.computeIntIfAbsent(shortName, key -> {
-                globalModel.routeShortPool.add(key);
-                return globalModel.routeShortPool.size() - 1;
+            model.routeShort2idx.computeIntIfAbsent(shortName, key -> {
+                model.routeShortPool.add(key);
+                return model.routeShortPool.size() - 1;
             });
         }
         for (String longName : agency.routeLongPool) {
-            globalModel.routeLong2idx.computeIntIfAbsent(longName, key -> {
-                globalModel.routeLongPool.add(key);
-                return globalModel.routeLongPool.size() - 1;
+            model.routeLong2idx.computeIntIfAbsent(longName, key -> {
+                model.routeLongPool.add(key);
+                return model.routeLongPool.size() - 1;
             });
         }
 
@@ -112,56 +111,56 @@ public final class LoaderPipeline {
             byte routeType = agency.routeTypeList.getByte(i);
             if (routeType < 0) continue;  // Ignorer les trous (-1)
 
-            globalModel.routeTypeList.set(offset + i, routeType);
+            model.routeTypeList.set(offset + i, routeType);
 
             String shortName = agency.routeShortPool.get(agency.routeShortIdxList.getInt(i));
-            globalModel.routeShortIdxList.set(offset + i, globalModel.routeShort2idx.getInt(shortName));
+            model.routeShortIdxList.set(offset + i, model.routeShort2idx.getInt(shortName));
 
             String longName = agency.routeLongPool.get(agency.routeLongIdxList.getInt(i));
-            globalModel.routeLongIdxList.set(offset + i, globalModel.routeLong2idx.getInt(longName));
+            model.routeLongIdxList.set(offset + i, model.routeLong2idx.getInt(longName));
 
             // Lookup global ID → index
             String routeId = agency.idDict.get(i);
-            globalModel.idx.put(routeId, offset + i);
+            model.idx.put(routeId, offset + i);
         }
     }
 
     /* Fusionne les trips d'une agence dans le modèle global. */
-    private static void mergeTrips(GlobalModel globalModel, AgencyModel agency, int offset) {
+    private static void mergeTrips(GlobalModel model, AgencyModel agency, int offset) {
         for (int i = agency.routeTypeList.size(); i < agency.tripRouteIdxList.size(); i++) {
             int localRouteIdx = agency.tripRouteIdxList.getInt(i);
 
-            int globalRouteIdx = globalModel.idx.get(agency.idDict.get(localRouteIdx));
-            globalModel.tripRouteIdxList.set(offset + i, globalRouteIdx);
+            int globalRouteIdx = model.idx.get(agency.idDict.get(localRouteIdx));
+            model.tripRouteIdxList.set(offset + i, globalRouteIdx);
 
             String tripId = agency.idDict.get(i);
-            globalModel.idx.put(tripId, offset + i);
+            model.idx.put(tripId, offset + i);
         }
     }
 
     /* Fusionne les stop_times d'une agence dans le modèle global. */
-    private static void mergeStopTimes(GlobalModel globalModel, AgencyModel agency, int offset) {
+    private static void mergeStopTimes(GlobalModel model, AgencyModel agency, int offset) {
         for (int i = 0; i < agency.stopIdxByTimeList.size(); i++) {
             int stopIdx = agency.stopIdxByTimeList.getInt(i);
-            globalModel.stopIdxByTimeList.add(stopIdx + offset);
-            globalModel.depSecList.add(agency.depSecList.getInt(i));
+            model.stopIdxByTimeList.add(stopIdx + offset);
+            model.depSecList.add(agency.depSecList.getInt(i));
         }
     }
 
     /* Fusionne les offsets d'une agence dans le modèle global. */
-    private static void mergeOffsets(GlobalModel globalModel, AgencyModel agency, int offset,
+    private static void mergeOffsets(GlobalModel model, AgencyModel agency, int offset,
                                      int globalDenseOffset, boolean firstAgency) {
         // Fusion des offsets dense
         for (int j = 0; j < agency.tripOfsDense.size(); j++) {
             if (!firstAgency && j == 0) continue; // Ne pas dupliquer le 0 initial
             int localDense = agency.tripOfsDense.getInt(j);
-            globalModel.tripOfsDense.add(localDense + globalDenseOffset);
+            model.tripOfsDense.add(localDense + globalDenseOffset);
         }
         // Fusion des offsets sparse
         for (int j = 0; j < agency.tripOfsSparse.size(); j++) {
             int localSparse = agency.tripOfsSparse.getInt(j);
             if (localSparse < 0) continue;
-            globalModel.tripOfsSparse.set(offset + j, localSparse + globalDenseOffset);
+            model.tripOfsSparse.set(offset + j, localSparse + globalDenseOffset);
         }
     }
 }

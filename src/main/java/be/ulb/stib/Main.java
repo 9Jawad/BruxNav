@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import static be.ulb.stib.tools.Utils.loadAgency;
 
+
 public class Main {
 
     static double parsingSeconds;
@@ -17,7 +18,6 @@ public class Main {
     private static final String ANSI_RESET = "\u001B[0m";
     private static final String ANSI_GREEN = "\u001B[32m";
     private static final String ANSI_YELLOW = "\u001B[33m";
-
 
     public static void main(String[] args) throws Exception {
 
@@ -91,7 +91,7 @@ public class Main {
         fusionSeconds = (endTime - startTime) / 1e9;
 
         // Affichage des statistiques de temps
-        System.out.printf("Fusion completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds);
+        System.out.printf("Fusion + Spatial Index completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds);
         System.out.printf("TOTAL TIME : " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds + parsingSeconds);
     }
 }
