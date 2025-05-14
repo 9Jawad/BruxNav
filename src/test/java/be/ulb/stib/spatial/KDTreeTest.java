@@ -48,17 +48,19 @@ class KDTreeTest {
 
         // rayon de 1200m autour de A
         int radius = 1200; // mètres
-        List<Integer> nb = tree.rangeSearch(50.8500, 4.3500, radius);
+        IntArrayList nb = tree.rangeSearch(50.8500, 4.3500, radius, 0);
 
         // dans le rayon
-        assertTrue(nb.contains(0)); // A
-        assertTrue(nb.contains(1)); // B
         assertTrue(nb.contains(4)); // E
+        assertTrue(nb.contains(1)); // B
+
         // trop loin
         assertFalse(nb.contains(2)); // C
         assertFalse(nb.contains(3)); // D
         assertFalse(nb.contains(5)); // F
 
-        assertEquals(3, nb.size());
+        // ne s'inclut pas soit meme
+        assertFalse(nb.contains(0)); // A
+        assertEquals(2, nb.size());
     }
 }

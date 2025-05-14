@@ -9,13 +9,15 @@ import static be.ulb.stib.tools.Utils.ensureSize;
 /* Fusionne toutes les données des agences */
 public final class LoaderPipeline {
 
+    static final int NEARBY = 500; // mètres
+
     public static GlobalModel fuse(List<AgencyModel> agencies) {
         GlobalModel globalModel = new GlobalModel();
 
         int totalSize = calculateTotalSize(agencies);     // 1) Calcul taille totale listes
         initializeSparseArrays(globalModel, totalSize);   // 2) Initialisation des listes avec "-1"
         mergeDatasFromAgencies(globalModel, agencies);    // 3) Fusion des données de chaque agence
-        globalModel.initSpatial(globalModel.stopCount()); // 4) Initialisation des listes d'index spatial
+        globalModel.initSpatial(NEARBY);                  // 4) Initialisation des listes d'index spatial
 
         return globalModel;
     }

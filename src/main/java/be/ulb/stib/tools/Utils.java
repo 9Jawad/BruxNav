@@ -8,6 +8,7 @@ import be.ulb.stib.parsing.TripLoader;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -36,6 +37,10 @@ public final class Utils {
         while (l.size() <= len) l.add(pad);
     }
 
+    public static void ensureSize(ObjectArrayList l, int len, int pad) {
+        while (l.size() <= len) l.add(pad);
+    }
+
     public static AgencyModel loadAgency(Path dir) throws Exception {
         AgencyModel m = new AgencyModel();
         StopLoader.load(dir.resolve("stops.csv"), m);
@@ -54,5 +59,13 @@ public final class Utils {
             Files.copy(in, dest);
             return dest;
         }
+    }
+
+    public static <T> ObjectArrayList<T> subList(ObjectArrayList<T> list, int fromIndex, int toIndex) {
+        ObjectArrayList<T> result = new ObjectArrayList<>(toIndex - fromIndex);
+        for (int i = fromIndex; i < toIndex; i++) {
+            result.add(list.get(i));
+        }
+        return result;
     }
 }

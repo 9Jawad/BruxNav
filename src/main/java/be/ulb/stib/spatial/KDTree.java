@@ -1,11 +1,11 @@
 package be.ulb.stib.spatial;
 
 import be.ulb.stib.data.GlobalModel;
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
-
+import static be.ulb.stib.tools.Utils.subList;
 
 /**
  * KD-Tree pour indexer les stops du GlobalModel.
@@ -17,7 +17,7 @@ public final class KDTree {
 
     /* Construit le KD-Tree à partir de tous les stops valides du modèle. */
     public KDTree(GlobalModel model) {
-        List<Node> pts = new ArrayList<>();
+        ObjectArrayList<Node> pts = new ObjectArrayList();
 
         for (int i = 0; i < model.stopNameIdxList.size(); i++) {
             int value = model.stopNameIdxList.get(i);
@@ -32,7 +32,7 @@ public final class KDTree {
     }
 
     /* Construit un arbre KD en alternant les dimensions (latitude/longitude). */
-    private Node build(List<Node> points, int depth) {
+    private Node build(ObjectArrayList<Node> points, int depth) {
         // Cas de base
         if (points.isEmpty()) { return null; } // enfants d'une feuille
 
@@ -49,8 +49,8 @@ public final class KDTree {
         root.axis = isLatitudeAxis ? 0 : 1;
 
         // Construit les sous-arbres
-        List<Node> leftPoints = points.subList(0, medianIndex);                    // élèments plus petit
-        List<Node> rightPoints = points.subList(medianIndex + 1, points.size());   // élèments plus grand
+        ObjectArrayList<Node> leftPoints =  subList(points, 0, medianIndex);                   // plus petit
+        ObjectArrayList<Node> rightPoints = subList(points, medianIndex + 1, points.size());   // plus grand
 
         root.left = build(leftPoints, depth + 1);
         root.right = build(rightPoints, depth + 1);
@@ -98,17 +98,17 @@ public final class KDTree {
 
     // -----------------------
 
-    /* Renvoie la liste des stopIdx dont la distance euclidienne au point (lat, lon) ≤ rayon. */
-    public List<Integer> rangeSearch(double lat, double lon, int radiusInMeters) {
+    /* Renvoie la liste des stopIdx dont la distance euclidienne au point (lat, lon) <= rayon. */
+    public IntArrayList rangeSearch(double lat, double lon, int radiusInMeters, int excludeIdx) {
         if (radiusInMeters < 0) throw new IllegalArgumentException("range must be positive");
         double radius = meters2degrees(radiusInMeters);
 
-        List<Integer> result = new ArrayList<>();
-        _rangeSearch(root, lat, lon, radius*radius, result);
+        IntArrayList result = new IntArrayList();
+        _rangeSearch(root, lat, lon, radius*radius, result, excludeIdx);
         return result;
     }
 
-    private void _rangeSearch(Node node, double lat, double lon, double radius, List<Integer> result) {
+    private void _rangeSearch(Node node, double lat, double lon, double radius, IntArrayList result, int excludeIdx) {
         // Cas de base
         if (node == null) return;
 
@@ -118,7 +118,7 @@ public final class KDTree {
         double dist = dLat*dLat + dLon*dLon;
 
         // point dans le rayon
-        if (dist <= radius) {
+        if (dist <= radius && node.stopIdx != excludeIdx) {
             result.add(node.stopIdx);
         }
         // détermination de l'ordre d'exploration des sous-arbres
@@ -129,10 +129,10 @@ public final class KDTree {
         Node first = (delta > 0) ? node.left : node.right;
         Node second = (first == node.left) ? node.right : node.left;
 
-        _rangeSearch(first, lat, lon, radius, result);
+        _rangeSearch(first, lat, lon, radius, result, excludeIdx);
 
         // vérifier si l'autre sous-arbre peut contenir des points dans le rayon
-        if (delta*delta <= radius) { _rangeSearch(second, lat, lon, radius, result); }
+        if (delta*delta <= radius) { _rangeSearch(second, lat, lon, radius, result, excludeIdx); }
     }
 
     /* ------------- helpers ------------- */
