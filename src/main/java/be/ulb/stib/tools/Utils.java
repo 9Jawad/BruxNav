@@ -41,6 +41,10 @@ public final class Utils {
         while (l.size() <= len) l.add(pad);
     }
 
+    public static void ensureSize(ObjectArrayList l, int len, Integer pad) {
+        while (l.size() <= len) l.add(pad);
+    }
+
     public static AgencyModel loadAgency(Path dir) throws Exception {
         AgencyModel m = new AgencyModel();
         StopLoader.load(dir.resolve("stops.csv"), m);

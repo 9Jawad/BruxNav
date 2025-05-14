@@ -15,9 +15,10 @@ public final class GlobalModel extends AgencyModel {
     public final Map<String, Integer> idx = new LinkedHashMap<>();
 
     // index spatiaux
-    public final ObjectArrayList<IntArrayList> walkEdges     = new ObjectArrayList<>();
-    public final ObjectArrayList<IntArrayList> walkEdgesCost = new ObjectArrayList<>();
-    public final ObjectArrayList<IntArrayList> transitEdges  = new ObjectArrayList<>();
+    public final ObjectArrayList<IntArrayList> walkEdges        = new ObjectArrayList<>();
+    public final ObjectArrayList<IntArrayList> walkEdgesCost    = new ObjectArrayList<>();
+    public final ObjectArrayList<IntArrayList> transitEdges     = new ObjectArrayList<>();
+    public final ObjectArrayList<IntArrayList> transitEdgesCost = new ObjectArrayList<>();
 
     public GlobalModel() {
         super();

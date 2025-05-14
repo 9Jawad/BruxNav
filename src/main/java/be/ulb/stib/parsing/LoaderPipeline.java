@@ -2,6 +2,7 @@ package be.ulb.stib.parsing;
 
 import be.ulb.stib.data.AgencyModel;
 import be.ulb.stib.data.GlobalModel;
+import be.ulb.stib.spatial.TransitEdgeGenerator;
 import be.ulb.stib.spatial.WalkEdgeGenerator;
 import java.util.List;
 import static be.ulb.stib.tools.Utils.ensureSize;
@@ -16,7 +17,8 @@ public final class LoaderPipeline {
         int totalSize = calculateTotalSize(agencies); // 1) Calcul taille totale listes
         initializeSparseArrays(model, totalSize);     // 2) Initialisation des listes avec "-1"
         mergeDatasFromAgencies(model, agencies);      // 3) Fusion des données de chaque agence
-        WalkEdgeGenerator.build(model);               // 4) Initialisation de walkEdges + cout
+        WalkEdgeGenerator.build(model);               // 4) Initialisation index spatial
+        TransitEdgeGenerator.build(model);
 
         return model;
     }

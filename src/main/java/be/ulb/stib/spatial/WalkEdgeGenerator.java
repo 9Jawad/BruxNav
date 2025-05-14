@@ -2,6 +2,7 @@ package be.ulb.stib.spatial;
 
 import be.ulb.stib.data.GlobalModel;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import static be.ulb.stib.spatial.KDTree.squaredNorm;
 import static be.ulb.stib.tools.Utils.ensureSize;
 import static java.lang.Math.sqrt;
@@ -10,8 +11,8 @@ import static java.lang.Math.sqrt;
 /**
  * Construit, pour chaque arrêt, la liste des voisins accessibles à pied.
  * Les arêtes sont stockées dans deux tableaux parallèles du GlobalModel:
- *   walkEdges  : ObjectArrayList<IntArrayList> – indices cibles
- *   walkEdgesCost    : ObjectArrayList<IntArrayList> – coût (secondes)
+ *   walkEdges     : ObjectArrayList<IntArrayList> – indices cibles
+ *   walkEdgesCost : ObjectArrayList<IntArrayList> – coût (secondes)
  */
 public final class WalkEdgeGenerator {
 
@@ -23,11 +24,11 @@ public final class WalkEdgeGenerator {
         KDTree tree = new KDTree(model);
 
         // assure que walkEdges / walkEdgesCost ont la bonne taille
-        int n = model.latList.size();
-        ensureSize(model.walkEdges,     n, -1);
-        ensureSize(model.walkEdgesCost, n, -1);
+        int nStops = model.latList.size();
+        ensureSize(model.walkEdges,     nStops, null);
+        ensureSize(model.walkEdgesCost, nStops, null);
 
-        for (int stopIdx = 0; stopIdx < n; stopIdx++) {
+        for (int stopIdx = 0; stopIdx < nStops; stopIdx++) {
             if (model.stopNameIdxList.getInt(stopIdx) < 0) continue; // slot vide
 
             double lat = model.latList.getDouble(stopIdx);

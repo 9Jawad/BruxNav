@@ -36,10 +36,10 @@ public class AgencyModel {
     public final IntArrayList                  tripRouteIdxList  = new IntArrayList();
 
     /* ======================  STOPS_TIMES  ====================== */
-    public final IntArrayList                  stopIdxByTimeList = new IntArrayList();
-    public final IntArrayList                  depSecList        = new IntArrayList();
-    public final IntArrayList                  tripOfsDense   = new IntArrayList();
-    public final IntArrayList                  tripOfsSparse   = new IntArrayList();
+    public IntArrayList                        stopIdxByTimeList = new IntArrayList();
+    public IntArrayList                        depSecList        = new IntArrayList();
+    public IntArrayList                        tripOfsDense      = new IntArrayList();
+    public final IntArrayList                  tripOfsSparse     = new IntArrayList();
 
     /* =========================  INFO  ========================= */
 
