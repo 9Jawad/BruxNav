@@ -19,7 +19,7 @@ public final class MultiModalGraph {
     public final ObjectArrayList<IntArrayList> costs   = new ObjectArrayList<>();
     public final int size;
 
-    public MultiModalGraph(GlobalModel model, int size) {
+    public MultiModalGraph(GlobalModel model) {
         this.size = model.latList.size();
         ensureSize(this.targets, this.size, null);
         ensureSize(this.costs,   this.size, null);
