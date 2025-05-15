@@ -11,8 +11,9 @@ import static be.ulb.stib.tools.Utils.ensureSize;
 /* Conteneur des données fusionnées de toutes les agences, plus index spatial. */
 public final class GlobalModel extends AgencyModel {
 
-    // dictionnaire d'ID globaux
+    // dictionnaire globaux
     public final Map<String, Integer> idx = new LinkedHashMap<>();
+    public final Map<Integer, String> id  = new LinkedHashMap<>();
 
     // index spatiaux
     public final ObjectArrayList<IntArrayList> walkEdges        = new ObjectArrayList<>();

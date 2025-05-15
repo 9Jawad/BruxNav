@@ -89,6 +89,7 @@ public final class LoaderPipeline {
             // Lookup global ID → index
             String stopId = agency.idDict.get(i);
             model.idx.put(stopId, offset + i);
+            model.id.put(offset + i, stopId);
         }
     }
 
@@ -124,6 +125,7 @@ public final class LoaderPipeline {
             // Lookup global ID → index
             String routeId = agency.idDict.get(i);
             model.idx.put(routeId, offset + i);
+            model.id.put(offset + i, routeId);
         }
     }
 
@@ -137,6 +139,7 @@ public final class LoaderPipeline {
 
             String tripId = agency.idDict.get(i);
             model.idx.put(tripId, offset + i);
+            model.id.put(offset + i, tripId);
         }
     }
 

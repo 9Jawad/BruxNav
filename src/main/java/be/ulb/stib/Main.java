@@ -2,12 +2,14 @@ package be.ulb.stib;
 
 import be.ulb.stib.data.*;
 import be.ulb.stib.graph.MultiModalGraph;
+import be.ulb.stib.output.ItineraryFormatter;
 import be.ulb.stib.parsing.LoaderPipeline;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import static be.ulb.stib.tools.Utils.loadAgency;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 
 public class Main {
@@ -22,12 +24,17 @@ public class Main {
     private static final String ANSI_YELLOW = "\u001B[33m";
 
     public static void main(String[] args) throws Exception {
-
         Path rootDirectory = validateAndGetRootDirectory(args);        // Validation des arguments
         List<AgencyModel> agencies = loadAgencyData(rootDirectory);    // Chargement des données des agences
         displayLoadingStatistics(agencies);                            // Affichage des statistiques de chargement
         GlobalModel model = fuseAgencyData(agencies);                  // Fusion des données dans un modèle global
         graphCreation(model);
+        pathFinder(model);
+        System.out.printf("TOTAL TIME : " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds + parsingSeconds + graphSeconds);
+    }
+
+    private static void pathFinder(GlobalModel model) {
+
     }
 
     /* Valide les arguments et retourne le répertoire racine. */
@@ -100,6 +107,5 @@ public class Main {
         long endTime = System.nanoTime();
         graphSeconds = (endTime - startTime) / 1e9;
         System.out.printf("Graph creation, completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, graphSeconds);
-        System.out.printf("TOTAL TIME : " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds + parsingSeconds + graphSeconds);
     }
 }

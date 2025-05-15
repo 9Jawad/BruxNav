@@ -11,6 +11,12 @@ import static be.ulb.stib.tools.Utils.ensureSize;
 /* Parse un fichier routes.csv et met à jour son AgencyModel. */
 public final class RouteLoader {
 
+    private static final byte BUS   = 0;
+    private static final byte TRAM  = 1;
+    private static final byte METRO = 2;
+    private static final byte TRAIN = 3;
+    private static final byte OTHER = 4;
+
     public static void load(Path routesCsv, AgencyModel agency) throws IOException {
         CsvReader reader = new CsvReader(routesCsv);
         int colId   = idx(reader.getHeaders(), "route_id");
@@ -51,11 +57,11 @@ public final class RouteLoader {
 
     private static byte routeType(String s) {
         switch (s.toUpperCase()) {
-            case "BUS":   return 0;
-            case "TRAM":  return 1;
-            case "METRO": return 2;
-            case "TRAIN": return 3;
-            default:      return 4;
+            case "BUS":   return BUS;
+            case "TRAM":  return TRAM;
+            case "METRO": return METRO;
+            case "TRAIN": return TRAIN;
+            default:      return OTHER;
         }
     }
 }
