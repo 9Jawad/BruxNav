@@ -17,14 +17,14 @@ public final class MultiModalGraph {
     
     public final ObjectArrayList<IntArrayList> targets = new ObjectArrayList<>();
     public final ObjectArrayList<IntArrayList> costs   = new ObjectArrayList<>();
+    public final int size;
 
-    public MultiModalGraph(GlobalModel model) {
+    public MultiModalGraph(GlobalModel model, int size) {
+        this.size = model.latList.size();
+        ensureSize(this.targets, this.size, null);
+        ensureSize(this.costs,   this.size, null);
 
-        int nStops = model.latList.size();
-        ensureSize(this.targets, nStops, null);
-        ensureSize(this.costs,   nStops, null);
-
-        for (int stopIdx = 0; stopIdx < nStops; stopIdx++) {
+        for (int stopIdx = 0; stopIdx < this.size; stopIdx++) {
             if (model.latList.get(stopIdx) < 0) continue;
 
             IntArrayList targetTransit = new IntArrayList();
