@@ -15,7 +15,7 @@ public final class RouteLoader {
     private static final byte TRAM  = 1;
     private static final byte METRO = 2;
     private static final byte TRAIN = 3;
-    private static final byte OTHER = 4;
+    private static final byte TRANSIT = 4;
 
     public static void load(Path routesCsv, AgencyModel agency) throws IOException {
         CsvReader reader = new CsvReader(routesCsv);
@@ -61,7 +61,7 @@ public final class RouteLoader {
             case "TRAM":  return TRAM;
             case "METRO": return METRO;
             case "TRAIN": return TRAIN;
-            default:      return OTHER;
+            default:      return TRANSIT;
         }
     }
 }

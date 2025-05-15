@@ -18,7 +18,6 @@ public final class ItineraryFormatter {
     private static final byte TRAM  = 1;
     private static final byte METRO = 2;
     private static final byte TRAIN = 3;
-    private static final int WALK   = -1;
 
     /* Convertit un chemin et ses métadonnées en lignes de texte lisibles. */
     public static List<String> format(IntArrayList pathStops, int[] arrivalSec, int[] parentEvent,
@@ -75,12 +74,12 @@ public final class ItineraryFormatter {
 
     /* Trouve l'index global du trip (trajet) contenant l'événement dense identifié par idxDense. */
     private static int findTripForDenseEvent(GlobalModel model, int idxDense) {
-        IntArrayList tripOffsetsSparse = model.tripOfsSparse;  // Tableau sparse: offset 1er stop ou -1
-        IntArrayList tripOffsetsDense = model.tripOfsDense;    // Bornes denses: [tripOffsetsDense[k], tripOffsetsDense[k+1][
+        IntArrayList tripOffsetsSparse = model.tripOfsSparse;
+        IntArrayList tripOffsetsDense = model.tripOfsDense;
 
         for (int tripIdx = 0; tripIdx < tripOffsetsSparse.size(); tripIdx++) {
             int offset = tripOffsetsSparse.getInt(tripIdx);
-            if (offset < 0) continue;  // Slot de remplissage (padding)
+            if (offset < 0) continue;  // Slot de remplissage
 
             // Position dans le tableau dense:
             int densePos = tripOffsetsDense.indexOf(offset);
@@ -116,6 +115,6 @@ public final class ItineraryFormatter {
     private static String formatTime(int seconds) {
         int hours = seconds / 3600;
         int minutes = (seconds % 3600) / 60;
-        return String.format("%02d:%02d", hours, minutes);
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds%60);
     }
 }
