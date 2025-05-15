@@ -1,6 +1,7 @@
 package be.ulb.stib;
 
 import be.ulb.stib.data.*;
+import be.ulb.stib.graph.MultiModalGraph;
 import be.ulb.stib.parsing.LoaderPipeline;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +14,7 @@ public class Main {
 
     static double parsingSeconds;
     static double fusionSeconds;
+    static double graphSeconds;
 
     // Constantes pour la colorisation de l'output
     private static final String ANSI_RESET = "\u001B[0m";
@@ -24,7 +26,8 @@ public class Main {
         Path rootDirectory = validateAndGetRootDirectory(args);        // Validation des arguments
         List<AgencyModel> agencies = loadAgencyData(rootDirectory);    // Chargement des données des agences
         displayLoadingStatistics(agencies);                            // Affichage des statistiques de chargement
-        fuseAgencyData(agencies);                                      // Fusion des données dans un modèle global
+        GlobalModel model = fuseAgencyData(agencies);                  // Fusion des données dans un modèle global
+        graphCreation(model);
     }
 
     /* Valide les arguments et retourne le répertoire racine. */
@@ -65,7 +68,7 @@ public class Main {
         long endTime = System.nanoTime();
         parsingSeconds = (endTime - startTime) / 1e9;
         System.out.println("===========================\n");
-        System.out.printf("Parsing completed in " + ANSI_GREEN + "%.2f s\n" + ANSI_RESET, parsingSeconds);
+        System.out.printf("Parsing, completed in " + ANSI_GREEN + "%.2f s\n" + ANSI_RESET, parsingSeconds);
 
         return agencies;
     }
@@ -80,18 +83,23 @@ public class Main {
                 totalStops, totalRoutes, totalTrips, agencies.size());
     }
 
-    /* Fusionne les données des agences dans un modèle global et affiche les statistiques de temps. */
-    private static void fuseAgencyData(List<AgencyModel> agencies) {
+    /* Fusionne les données des agences dans un modèle global. */
+    private static GlobalModel fuseAgencyData(List<AgencyModel> agencies) {
         long startTime = System.nanoTime();
-
-        // Fusion des données
         GlobalModel model = LoaderPipeline.fuse(agencies);
-
         long endTime = System.nanoTime();
         fusionSeconds = (endTime - startTime) / 1e9;
+        System.out.printf("Fusion + Spatial Index, completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds);
+        return model;
+    }
 
-        // Affichage des statistiques de temps
-        System.out.printf("Fusion + Spatial Index completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds);
-        System.out.printf("TOTAL TIME : " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds + parsingSeconds);
+    /* Création d'un graphe multi modal à partir des arcs de marche et de transit. */
+    private static void graphCreation(GlobalModel model) {
+        long startTime = System.nanoTime();
+        MultiModalGraph graph = new MultiModalGraph(model);
+        long endTime = System.nanoTime();
+        graphSeconds = (endTime - startTime) / 1e9;
+        System.out.printf("Graph creation, completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, graphSeconds);
+        System.out.printf("TOTAL TIME : " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds + parsingSeconds + graphSeconds);
     }
 }
