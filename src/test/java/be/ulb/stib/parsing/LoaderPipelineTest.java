@@ -9,6 +9,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+// import be.ulb.stib.data.FusionVisualizer;
 
 
 class LoaderPipelineTest {
@@ -17,7 +18,7 @@ class LoaderPipelineTest {
 
     @Test
     void fuseTwoAgenciesWholeLists() throws Exception {
-         // FusionVisualizer.display();
+        // FusionVisualizer.display();
         Path root = Paths.get("src/test/resources/forLoaderPipeline");
         AgencyModel m1 = loadAgency(root.resolve("A"));
         AgencyModel m2 = loadAgency(root.resolve("B"));
@@ -26,29 +27,29 @@ class LoaderPipelineTest {
         GlobalModel g = LoaderPipeline.fuse(List.of(m1, m2));
 
         /* ==========  STOPS  ========== */
-        // latList         = [0.0, 1.0, -1, -1, 2.0, 3.0, -1, -1]
-        // lonList         = [0.0, 1.0, -1, -1, 2.0, 3.0, -1, -1]
+        // latList         = [0.0, 1.0, -1, -1, 2.0, 3.0]
+        // lonList         = [0.0, 1.0, -1, -1, 2.0, 3.0]
 
         // stopNamePool    = ["Stop1", "Stop2", "Stop3", "Stop4"]
-        // stopNameIdxList = [0, 1, -1, -1, 2, 3, -1, -1]
+        // stopNameIdxList = [0, 1, -1, -1, 2, 3]
 
-        assertArrayEquals(new double[]{0.0, 1.0, -1, -1, 2.0, 3.0, -1, -1}, g.latList.toDoubleArray(), 1e-9);
-        assertArrayEquals(new double[]{0.0, 1.0, -1, -1, 2.0, 3.0, -1, -1}, g.lonList.toDoubleArray(), 1e-9);
-        assertEquals(List.of("Stop1", "Stop2" ,"Stop3", "Stop4"),           g.stopNamePool);
-        assertArrayEquals(new int[]{0, 1, -1, -1, 2, 3, -1, -1},            g.stopNameIdxList.toIntArray());
+        assertArrayEquals(new double[]{0.0, 1.0, -1, -1, 2.0, 3.0}, g.latList.toDoubleArray(), 1e-9);
+        assertArrayEquals(new double[]{0.0, 1.0, -1, -1, 2.0, 3.0}, g.lonList.toDoubleArray(), 1e-9);
+        assertEquals(List.of("Stop1", "Stop2" ,"Stop3", "Stop4"),   g.stopNamePool);
+        assertArrayEquals(new int[]{0, 1, -1, -1, 2, 3},            g.stopNameIdxList.toIntArray());
 
         /* ==========  ROUTES  ========== */
-        // routeTypeList     = [-1, -1, 3, -1, -1, -1, 3, -1]
+        // routeTypeList     = [-1, -1, 3, -1, -1, -1, 3]
         // routeShortPool    = ["10", "20"]
-        // routeShortIdxList = [-1, -1, 0, -1, -1, -1, 1, -1]
+        // routeShortIdxList = [-1, -1, 0, -1, -1, -1, 1]
         // routeLongPool     = ["Line 10", "Line 20"]
-        // routeLongIdxList  = [-1, -1, 0, -1, -1, -1, 1, -1]
+        // routeLongIdxList  = [-1, -1, 0, -1, -1, -1, 1]
 
-        assertArrayEquals(new byte[]{-1, -1, 3, -1, -1, -1, 3, -1}, g.routeTypeList.toByteArray());
-        assertEquals(List.of("10", "20"),                           g.routeShortPool);
-        assertArrayEquals(new int[]{-1, -1, 0, -1, -1, -1, 1, -1},  g.routeShortIdxList.toIntArray());
-        assertEquals(List.of("Line 10", "Line 20"),                 g.routeLongPool);
-        assertArrayEquals(new int[]{-1, -1, 0, -1, -1, -1, 1, -1},  g.routeLongIdxList.toIntArray());
+        assertArrayEquals(new byte[]{-1, -1, 3, -1, -1, -1, 3}, g.routeTypeList.toByteArray());
+        assertEquals(List.of("10", "20"),                       g.routeShortPool);
+        assertArrayEquals(new int[]{-1, -1, 0, -1, -1, -1, 1},  g.routeShortIdxList.toIntArray());
+        assertEquals(List.of("Line 10", "Line 20"),             g.routeLongPool);
+        assertArrayEquals(new int[]{-1, -1, 0, -1, -1, -1, 1},  g.routeLongIdxList.toIntArray());
 
         /* ==========  TRIPS  ========== */
         // tripRouteIdxList = [-1, -1, -1, 2, -1, -1, -1, 6]

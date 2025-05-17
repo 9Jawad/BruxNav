@@ -38,8 +38,8 @@ public final class AStarTD {
     /* ------------------------- API ------------------------- */
 
     public boolean search(String src, String dst, String departureTime) {
-        int srcIdx = model.stopName2idx.getInt(src);
-        int dstIdx = model.stopName2idx.getInt(dst);
+        int srcIdx = model.stopNameIdxList.indexOf(model.stopName2idx.getInt(src));
+        int dstIdx = model.stopNameIdxList.indexOf(model.stopName2idx.getInt(dst));
         int departureSec = toSec(departureTime);
         return search(srcIdx, dstIdx, departureSec);
     }
@@ -71,17 +71,17 @@ public final class AStarTD {
             var neigh = graph.targets.get(u);
             var cost  = graph.costs  .get(u);
             var mode  = graph.modes  .get(u);
+            var trip  = graph.routeIdxPerArc.get(u);
             if (neigh == null) continue;
 
             for (int k = 0; k < neigh.size(); k++) {
                 int v   = neigh.getInt(k);
-                int rIdx = graph.routeIdx(u, k);
                 int arr = arrival[u] + cost.getInt(k);
                 if (arr < arrival[v]) {
                     arrival   [v] = arr;
                     parentStop[v] = u;
                     parentMode[v] = (byte) mode.getInt(k);
-                    parentRouteIdx[v] = rIdx;
+                    parentRouteIdx[v] = trip.getInt(k);
                     fscore    [v] = arr + h(v, dst);
                     open.enqueue(v);
                 }

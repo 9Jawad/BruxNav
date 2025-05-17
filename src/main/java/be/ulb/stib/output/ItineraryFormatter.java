@@ -1,10 +1,12 @@
 package be.ulb.stib.output;
 
+import be.ulb.stib.algo.AStarTD;
 import be.ulb.stib.data.GlobalModel;
 import be.ulb.stib.graph.MultiModalGraph;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.ArrayList;
 import java.util.List;
+import static be.ulb.stib.tools.Utils.reverse;
 
 
 /**
@@ -21,7 +23,8 @@ public final class ItineraryFormatter {
                                       byte[] parentMode,
                                       int[] parentRouteIdx,
                                       GlobalModel model,
-                                      MultiModalGraph graph) {
+                                      MultiModalGraph graph)
+    {
         List<String> out = new ArrayList<>();
         if (pathStops == null || pathStops.size() < 2) {
             out.add("No journey found.");
@@ -36,12 +39,13 @@ public final class ItineraryFormatter {
             String toName = stopName(model, to);
             String depTime = hms(arrivalSec[from]);
             String arrTime = hms(arrivalSec[to]);
+            int routeIdx = parentRouteIdx[to];
+            int parentModeIdx = parentMode[to];
 
-            if (parentMode[to] == 0) {                       // WALK
-                out.add(String.format("Walk from %s (%s) to %s (%s)",
+            if (parentMode[to] == 0 && parentRouteIdx[to] == -1) {
+                out.add(String.format("Walk from %s (%s) to %s (%s)", // WALK
                         fromName, depTime, toName, arrTime));
             } else {                                         // TRANSIT
-                int routeIdx = parentRouteIdx[to];
                 String shortName = model.routeShortPool.get(
                         model.routeShortIdxList.getInt(routeIdx));
 
@@ -54,7 +58,6 @@ public final class ItineraryFormatter {
                     case 3 -> "TRAIN";
                     default  -> "TRANSIT";
                 };
-
                 out.add(String.format("Take %s %s from %s (%s) to %s (%s)",
                         modeStr, shortName, fromName, depTime, toName, arrTime));
 
@@ -64,6 +67,7 @@ public final class ItineraryFormatter {
     }
 
     /* ------------ helpers ------------- */
+
     private static String stopName(GlobalModel model, int idx) {
         int nIdx = model.stopNameIdxList.getInt(idx);
         return (nIdx >= 0 && nIdx < model.stopNamePool.size())
@@ -82,5 +86,13 @@ public final class ItineraryFormatter {
         int h = s / 3600;
         int m = (s % 3600) / 60;
         return String.format("%02d:%02d:%02d", h, m, s % 60);
+    }
+
+    public static IntArrayList reconstruct(int arr, AStarTD astar) {
+        IntArrayList path = new IntArrayList();
+                for (int cur = arr; cur != -1; cur = astar.parentStops()[cur])
+                path.add(cur);
+        reverse(path);
+        return path;
     }
 }

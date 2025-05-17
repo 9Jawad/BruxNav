@@ -62,6 +62,30 @@ public final class Utils {
         return result;
     }
 
+    public static void trimEnd(IntArrayList list) {
+        int lastValidIndex = list.size() - 1;
+        while (lastValidIndex >= 0 && list.getInt(lastValidIndex) == -1) {
+            lastValidIndex--;
+        }
+        list.size(lastValidIndex + 1);
+    }
+
+    public static void trimEnd(DoubleArrayList list) {
+        int lastValidIndex = list.size() - 1;
+        while (lastValidIndex >= 0 && list.getDouble(lastValidIndex) == -1) {
+            lastValidIndex--;
+        }
+        list.size(lastValidIndex + 1);
+    }
+
+    public static void trimEnd(ByteArrayList list) {
+        int lastValidIndex = list.size() - 1;
+        while (lastValidIndex >= 0 && list.getByte(lastValidIndex) == -1) {
+            lastValidIndex--;
+        }
+        list.size(lastValidIndex + 1);
+    }
+
     public static void ensureSize(IntArrayList l, int len, int pad) {
         while (l.size() <= len) l.add(pad);
     }

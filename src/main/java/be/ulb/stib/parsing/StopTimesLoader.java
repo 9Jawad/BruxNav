@@ -71,7 +71,6 @@ public final class StopTimesLoader {
                              IntArrayList sparseOfs) {
 
         if (tripIdx < 0)        return; // skip premier appel
-        if (bufStop.size() < 2) return; // "timepoint only"
 
         // ajout des données à l'AgencyModel
         int offset = stopIdxL.size();

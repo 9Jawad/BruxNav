@@ -29,19 +29,19 @@ class StopTimesLoaderTest {
 
         /**
          * Après parsing :
-         *   stopIdxByTime = [0,1,0,2]    (S1,S2,S1,S3)
-         *   depSec        = [25200,25380,25500,25680]
-         *   tripOfsDense  = [0,2,4]
-         *   tripOfsSparse = [-1, -1, -1, -1, 0, 2]     (T3 ignoré)
+         *   stopIdxByTime = [0, 1, 0, 2, 0]    (S1,S2,S1,S3,S1)
+         *   depSec        = [25200, 25380, 25500, 25680, 25800]
+         *   tripOfsDense  = [0, 2, 4, 5]
+         *   tripOfsSparse = [-1, -1, -1, -1, 0, 2, 4]
          */
 
         assertEquals(3, agency.stopCount());
         assertEquals(1, agency.routeCount());
         assertEquals(3, agency.tripCount());
 
-        assertArrayEquals(new int[]{0,1,0,2},                    agency.stopIdxByTimeList.toIntArray());
-        assertArrayEquals(new int[]{25200, 25380, 25680, 25500}, agency.depSecList.toIntArray());
-        assertArrayEquals(new int[]{0,2,4},                      agency.tripOfsDense.toIntArray());
-        assertArrayEquals(new int[]{-1, -1, -1, -1, 0, 2},       agency.tripOfsSparse.toIntArray());
+        assertArrayEquals(new int[]{0, 1, 0, 2, 0},                     agency.stopIdxByTimeList.toIntArray());
+        assertArrayEquals(new int[]{25200, 25380, 25680, 25500, 25800}, agency.depSecList.toIntArray());
+        assertArrayEquals(new int[]{0, 2, 4, 5},                        agency.tripOfsDense.toIntArray());
+        assertArrayEquals(new int[]{-1, -1, -1, -1, 0, 2, 4},           agency.tripOfsSparse.toIntArray());
     }
 }

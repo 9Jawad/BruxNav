@@ -9,9 +9,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import static be.ulb.stib.output.ItineraryFormatter.reconstruct;
+import static be.ulb.stib.parsing.StopTimesLoader.toSec;
 import static be.ulb.stib.tools.Utils.loadAgency;
 import static be.ulb.stib.tools.Utils.reverse;
-
+import be.ulb.stib.spatial.TransitEdgeGenerator;
+import be.ulb.stib.spatial.WalkEdgeGenerator;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 
@@ -20,6 +24,7 @@ public class Main {
     static double parsingSeconds;
     static double fusionSeconds;
     static double astarSeconds;
+    static double graphSeconds;
 
     // Constantes pour la colorisation de l'output
     private static final String ANSI_RESET = "\u001B[0m";
@@ -31,40 +36,44 @@ public class Main {
         List<AgencyModel> agencies = loadAgencyData(rootDirectory);    // Chargement des données des agences
         displayLoadingStatistics(agencies);                            // Affichage des statistiques de chargement
         GlobalModel model = fuseAgencyData(agencies);                  // Fusion des données dans un modèle global
-        pathFinder(model);
-        System.out.printf("TOTAL TIME : " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds + parsingSeconds + astarSeconds);
+        MultiModalGraph graph = graphBuild(model);
+        pathFinder(model, graph);
+        System.out.printf("TOTAL TIME : " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds + parsingSeconds + astarSeconds + graphSeconds);
     }
 
-
-
-
-
-    private static void pathFinder(GlobalModel model) {
+    private static MultiModalGraph graphBuild(GlobalModel model) {
         long startTime = System.nanoTime();
-
+        WalkEdgeGenerator.build(model);
+        TransitEdgeGenerator.build(model);
         MultiModalGraph graph = new MultiModalGraph(model);
-        AStarTD astar = new AStarTD(model, graph);
-        boolean ok = astar.search("Alveringem Nieuwe Herberg", "Veurne Voorstad", "10:30:00");
+        long endTime = System.nanoTime();
+        graphSeconds = (endTime - startTime) / 1e9;
+        System.out.printf("Graph, completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, graphSeconds);
+        return graph;
+    }
 
+    /*-------------------------------------------------------------------------------*/
+
+    private static void pathFinder(GlobalModel model, MultiModalGraph graph) {
+        AStarTD astar = new AStarTD(model, graph);
+        int dep = model.idx.get("STIB-1124");
+        int arr = model.idx.get("STIB-9600B");
+
+        long startTime = System.nanoTime();
+        boolean ok = astar.search(dep, arr, toSec("04:20:00"));
         long endTime = System.nanoTime();
         astarSeconds = (endTime - startTime) / 1e9;
+        System.out.printf("PathFind, completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, astarSeconds);
 
         if (ok) {
-            IntArrayList path = new IntArrayList();
-            int dstIdx = model.stopName2idx.getInt("Veurne Voorstad");
-            for (int cur = dstIdx; cur != -1; cur = astar.parentStops()[cur])
-                path.add(cur);
-            reverse(path);
-
+            IntArrayList path = reconstruct(arr, astar);
             ItineraryFormatter.format(path,
                             astar.earliestArrival(),
                             astar.parentModes(),
                             astar.parentRoutes(),
                             model, graph)
                     .forEach(System.out::println);
-        } else {
-            System.out.println("No path found.");
-        }
+        } else { System.out.println("No path found."); }
     }
 
     /* Valide les arguments et retourne le répertoire racine. */
@@ -126,7 +135,7 @@ public class Main {
         GlobalModel model = LoaderPipeline.fuse(agencies);
         long endTime = System.nanoTime();
         fusionSeconds = (endTime - startTime) / 1e9;
-        System.out.printf("Fusion + Spatial Index, completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds);
+        System.out.printf("Fusion, completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds);
         return model;
     }
 }

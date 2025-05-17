@@ -6,6 +6,7 @@ import be.ulb.stib.spatial.TransitEdgeGenerator;
 import be.ulb.stib.spatial.WalkEdgeGenerator;
 import java.util.List;
 import static be.ulb.stib.tools.Utils.ensureSize;
+import static be.ulb.stib.tools.Utils.trimEnd;
 
 
 /* Fusionne toutes les données des agences */
@@ -17,9 +18,7 @@ public final class LoaderPipeline {
         int totalSize = calculateTotalSize(agencies); // 1) Calcul taille totale listes
         initializeSparseArrays(model, totalSize);     // 2) Initialisation des listes avec "-1"
         mergeDatasFromAgencies(model, agencies);      // 3) Fusion des données de chaque agence
-        WalkEdgeGenerator.build(model);               // 4) Initialisation index spatial
-        TransitEdgeGenerator.build(model);
-
+        trimEndAll(model);                            // 4) Supprime les -1 a la fin des listes
         return model;
     }
 
@@ -29,7 +28,7 @@ public final class LoaderPipeline {
         for (AgencyModel agency : agencies) {
             totalSize += agency.tripRouteIdxList.size(); // liste la plus grande
         }
-        return totalSize - 1; // Ajustement nécessaire
+        return totalSize;
     }
 
     /* Initialise les tableaux sparse à leur taille finale. */
@@ -42,6 +41,17 @@ public final class LoaderPipeline {
         ensureSize(model.tripRouteIdxList,  totalSize, -1);
         ensureSize(model.tripOfsSparse,     totalSize, -1);
         ensureSize(model.stopNameIdxList,   totalSize, -1);
+    }
+
+    private static void trimEndAll(GlobalModel model) {
+        trimEnd(model.lonList);
+        trimEnd(model.latList);
+        trimEnd(model.routeTypeList);
+        trimEnd(model.routeShortIdxList);
+        trimEnd(model.routeLongIdxList);
+        trimEnd(model.stopNameIdxList);
+        trimEnd(model.tripRouteIdxList);
+        trimEnd(model.tripOfsSparse);
     }
 
     /* Fusionne les données de chaque agence dans le modèle global. */
@@ -133,9 +143,9 @@ public final class LoaderPipeline {
     private static void mergeTrips(GlobalModel model, AgencyModel agency, int offset) {
         for (int i = agency.routeTypeList.size(); i < agency.tripRouteIdxList.size(); i++) {
             int localRouteIdx = agency.tripRouteIdxList.getInt(i);
+            if (localRouteIdx < 0) continue;
 
-            int globalRouteIdx = model.idx.get(agency.idDict.get(localRouteIdx));
-            model.tripRouteIdxList.set(offset + i, globalRouteIdx);
+            model.tripRouteIdxList.set(offset + i, offset + localRouteIdx);
 
             String tripId = agency.idDict.get(i);
             model.idx.put(tripId, offset + i);
