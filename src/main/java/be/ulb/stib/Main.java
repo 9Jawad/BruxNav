@@ -1,5 +1,6 @@
 package be.ulb.stib;
 
+import be.ulb.stib.algo.AStarTD;
 import be.ulb.stib.data.*;
 import be.ulb.stib.graph.MultiModalGraph;
 import be.ulb.stib.output.ItineraryFormatter;
@@ -9,6 +10,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import static be.ulb.stib.tools.Utils.loadAgency;
+import static be.ulb.stib.tools.Utils.reverse;
+
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 
@@ -16,7 +19,7 @@ public class Main {
 
     static double parsingSeconds;
     static double fusionSeconds;
-    static double graphSeconds;
+    static double astarSeconds;
 
     // Constantes pour la colorisation de l'output
     private static final String ANSI_RESET = "\u001B[0m";
@@ -28,13 +31,40 @@ public class Main {
         List<AgencyModel> agencies = loadAgencyData(rootDirectory);    // Chargement des données des agences
         displayLoadingStatistics(agencies);                            // Affichage des statistiques de chargement
         GlobalModel model = fuseAgencyData(agencies);                  // Fusion des données dans un modèle global
-        graphCreation(model);
         pathFinder(model);
-        System.out.printf("TOTAL TIME : " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds + parsingSeconds + graphSeconds);
+        System.out.printf("TOTAL TIME : " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds + parsingSeconds + astarSeconds);
     }
 
-    private static void pathFinder(GlobalModel model) {
 
+
+
+
+    private static void pathFinder(GlobalModel model) {
+        long startTime = System.nanoTime();
+
+        MultiModalGraph graph = new MultiModalGraph(model);
+        AStarTD astar = new AStarTD(model, graph);
+        boolean ok = astar.search("Alveringem Nieuwe Herberg", "Veurne Voorstad", "10:30:00");
+
+        long endTime = System.nanoTime();
+        astarSeconds = (endTime - startTime) / 1e9;
+
+        if (ok) {
+            IntArrayList path = new IntArrayList();
+            int dstIdx = model.stopName2idx.getInt("Veurne Voorstad");
+            for (int cur = dstIdx; cur != -1; cur = astar.parentStops()[cur])
+                path.add(cur);
+            reverse(path);
+
+            ItineraryFormatter.format(path,
+                            astar.earliestArrival(),
+                            astar.parentModes(),
+                            astar.parentRoutes(),
+                            model, graph)
+                    .forEach(System.out::println);
+        } else {
+            System.out.println("No path found.");
+        }
     }
 
     /* Valide les arguments et retourne le répertoire racine. */
@@ -98,14 +128,5 @@ public class Main {
         fusionSeconds = (endTime - startTime) / 1e9;
         System.out.printf("Fusion + Spatial Index, completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds);
         return model;
-    }
-
-    /* Création d'un graphe multi modal à partir des arcs de marche et de transit. */
-    private static void graphCreation(GlobalModel model) {
-        long startTime = System.nanoTime();
-        MultiModalGraph graph = new MultiModalGraph(model);
-        long endTime = System.nanoTime();
-        graphSeconds = (endTime - startTime) / 1e9;
-        System.out.printf("Graph creation, completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, graphSeconds);
     }
 }

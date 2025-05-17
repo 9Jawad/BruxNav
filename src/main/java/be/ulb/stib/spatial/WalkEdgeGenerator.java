@@ -16,8 +16,8 @@ import static java.lang.Math.sqrt;
  */
 public final class WalkEdgeGenerator {
 
-    private static final int    DEFAULT_RADIUS_M = 500;  // rayon maximal de marche en mètres.
-    private static final double WALK_SPEED_MPS   = 1.39; // vitesse de marche → 1.39m/s (5km/h).
+    private static final int    DEFAULT_RADIUS_M = 1000; // rayon maximal de marche en mètres.
+    private static final double WALK_SPEED_MPS   = 1.25; // vitesse de marche (4,5km/h).
 
     /* Ajoute les arcs piétons au GlobalModel. */
     public static void build(GlobalModel model, int radiusMeters) {

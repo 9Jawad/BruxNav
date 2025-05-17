@@ -14,41 +14,64 @@ import static be.ulb.stib.tools.Utils.ensureSize;
  * - les arcs transit   (transitEdges/transitEdgesCost)
  */
 public final class MultiModalGraph {
-    
+
     public final ObjectArrayList<IntArrayList> targets = new ObjectArrayList<>();
     public final ObjectArrayList<IntArrayList> costs   = new ObjectArrayList<>();
+    public final ObjectArrayList<IntArrayList> modes   = new ObjectArrayList<>();
+    public final ObjectArrayList<IntArrayList> routeIdxPerArc = new ObjectArrayList<>();
     public final int size;
 
     public MultiModalGraph(GlobalModel model) {
         this.size = model.latList.size();
-        ensureSize(this.targets, this.size, null);
-        ensureSize(this.costs,   this.size, null);
+        ensureSize(targets,        size, null);
+        ensureSize(costs,          size, null);
+        ensureSize(modes,          size, null);
+        ensureSize(routeIdxPerArc, size, null);
 
-        for (int stopIdx = 0; stopIdx < this.size; stopIdx++) {
-            if (model.latList.get(stopIdx) < 0) continue;
+        for (int stop = 0; stop < size; stop++) {
+            if (model.latList.get(stop) < 0) continue;
 
-            IntArrayList targetTransit = new IntArrayList();
-            IntArrayList targetCost = new IntArrayList();
+            IntArrayList t  = new IntArrayList();
+            IntArrayList c  = new IntArrayList();
+            IntArrayList m  = new IntArrayList();
+            IntArrayList ri = new IntArrayList();
 
-            // Arcs Marche
-            IntArrayList walkT = model.walkEdges.get(stopIdx);
-            IntArrayList walkC = model.walkEdgesCost.get(stopIdx);
+            /* ---- WALK ---- */
+            IntArrayList walkT = model.walkEdges.get(stop);
+            IntArrayList walkC = model.walkEdgesCost.get(stop);
             if (walkT != null) {
-                targetTransit.addAll(walkT);
-                targetCost.addAll(walkC);
+                t.addAll(walkT);
+                c.addAll(walkC);
+                for (int k = 0; k < walkT.size(); k++) {
+                    m .add(0);      // 0 = walk
+                    ri.add(-1);     // pas de ligne
+                }
             }
-            // Arcs Transit
-            IntArrayList trT = model.transitEdges.get(stopIdx);
-            IntArrayList trC = model.transitEdgesCost.get(stopIdx);
+
+            /* ---- TRANSIT ---- */
+            IntArrayList trT = model.transitEdges.get(stop);
+            IntArrayList trC = model.transitEdgesCost.get(stop);
+            IntArrayList trR = model.transitEdgesRouteIdx.get(stop);
             if (trT != null) {
-                targetTransit.addAll(trT);
-                targetCost.addAll(trC);
+                t.addAll(trT);
+                c.addAll(trC);
+                ri.addAll(trR);
+                for (int k = 0; k < trT.size(); k++) {
+                    m .add(1);          // 1 = transit
+                }
             }
-            // ajout dans le graphe
-            if (!targetTransit.isEmpty()) {
-                targets.set(stopIdx, targetTransit);
-                costs.set(stopIdx, targetCost);
+
+            if (!t.isEmpty()) {
+                targets       .set(stop, t);
+                costs         .set(stop, c);
+                modes         .set(stop, m);
+                routeIdxPerArc.set(stop, ri);
             }
         }
+    }
+    public int routeIdx(int fromStop, int arcOrd) {
+        IntArrayList ri = routeIdxPerArc.get(fromStop);
+        return (ri == null || arcOrd >= ri.size()) ? -1
+                : ri.getInt(arcOrd);
     }
 }

@@ -48,12 +48,12 @@ class MultiModalGraphTest {
 
         assertTrue(targetTransitA.contains(1)); // vers B
 
-        // Récupérer les deux coûts (walk ~80 s, transit 300 s)
+        // Récupérer les deux coûts (walk ~89 s, transit 300 s)
         int cost1 = targetCostA.get(0);
         int cost2 = targetCostA.get(1);
         int min = Math.min(cost1, cost2);
         int max = Math.max(cost1, cost2);
-        assertEquals(80, min);   // marche
+        assertEquals(89, min);   // marche
         assertEquals(300, max);  // transit
 
         // ================ B ================

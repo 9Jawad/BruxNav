@@ -25,24 +25,13 @@ public final class Utils {
         return i;
     }
 
-    public static void ensureSize(IntArrayList l, int len, int pad) {
-        while (l.size() <= len) l.add(pad);
-    }
-
-    public static void ensureSize(DoubleArrayList l, int len, double pad) {
-        while (l.size() <= len) l.add(pad);
-    }
-
-    public static void ensureSize(ByteArrayList l, int len, byte pad) {
-        while (l.size() <= len) l.add(pad);
-    }
-
-    public static void ensureSize(ObjectArrayList l, int len, int pad) {
-        while (l.size() <= len) l.add(pad);
-    }
-
-    public static void ensureSize(ObjectArrayList l, int len, Integer pad) {
-        while (l.size() <= len) l.add(pad);
+    public static void reverse(IntArrayList list) {
+        int size = list.size();
+        for (int i = 0; i < size / 2; i++) {
+            int tmp = list.getInt(i);
+            list.set(i, list.getInt(size - 1 - i));
+            list.set(size - 1 - i, tmp);
+        }
     }
 
     public static AgencyModel loadAgency(Path dir) throws Exception {
@@ -71,5 +60,25 @@ public final class Utils {
             result.add(list.get(i));
         }
         return result;
+    }
+
+    public static void ensureSize(IntArrayList l, int len, int pad) {
+        while (l.size() <= len) l.add(pad);
+    }
+
+    public static void ensureSize(DoubleArrayList l, int len, double pad) {
+        while (l.size() <= len) l.add(pad);
+    }
+
+    public static void ensureSize(ByteArrayList l, int len, byte pad) {
+        while (l.size() <= len) l.add(pad);
+    }
+
+    public static void ensureSize(ObjectArrayList l, int len, int pad) {
+        while (l.size() <= len) l.add(pad);
+    }
+
+    public static void ensureSize(ObjectArrayList l, int len, Integer pad) {
+        while (l.size() <= len) l.add(pad);
     }
 }

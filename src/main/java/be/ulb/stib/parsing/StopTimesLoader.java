@@ -85,7 +85,7 @@ public final class StopTimesLoader {
 
     /* ------------- helpers ------------- */
 
-    private static int toSec(String hhmmss) {
+    public static int toSec(String hhmmss) {
         String[] p = hhmmss.split(":");
         int h = Integer.parseInt(p[0]); // heure
         int m = Integer.parseInt(p[1]); // minute

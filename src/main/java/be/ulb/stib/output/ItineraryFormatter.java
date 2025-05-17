@@ -1,120 +1,86 @@
 package be.ulb.stib.output;
 
 import be.ulb.stib.data.GlobalModel;
+import be.ulb.stib.graph.MultiModalGraph;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
- * Construit un texte lisible du chemin pour un itinéraire de transport en commun.
- * Cette classe permet de formater les résultats d'un algorithme de recherche d'itinéraire
- * sous forme de texte compréhensible pour l'utilisateur.
+ * Construit un texte lisible à partir :
+ *   • du chemin (liste de stops)
+ *   • du tableau earliest-arrival[] (secondes)
+ *   • du tableau parentMode[]   : 0 = walk, 1 = transit
+ *   • du GlobalModel + MultiModalGraph (pour récupérer libellés)
  */
 public final class ItineraryFormatter {
 
-    // Constantes
-    private static final byte BUS   = 0;
-    private static final byte TRAM  = 1;
-    private static final byte METRO = 2;
-    private static final byte TRAIN = 3;
-
-    /* Convertit un chemin et ses métadonnées en lignes de texte lisibles. */
-    public static List<String> format(IntArrayList pathStops, int[] arrivalSec, int[] parentEvent,
-                                               GlobalModel model)
-    {
+    public static List<String> format(IntArrayList pathStops,
+                                      int[] arrivalSec,
+                                      byte[] parentMode,
+                                      int[] parentRouteIdx,
+                                      GlobalModel model,
+                                      MultiModalGraph graph) {
         List<String> out = new ArrayList<>();
+        if (pathStops == null || pathStops.size() < 2) {
+            out.add("No journey found.");
+            return out;
+        }
 
         for (int i = 1; i < pathStops.size(); i++) {
             int from = pathStops.getInt(i - 1);
-            int to   = pathStops.getInt(i);
+            int to = pathStops.getInt(i);
 
-            int departureTime = arrivalSec[from];
-            int arrivalTime = arrivalSec[to];
+            String fromName = stopName(model, from);
+            String toName = stopName(model, to);
+            String depTime = hms(arrivalSec[from]);
+            String arrTime = hms(arrivalSec[to]);
 
-            int event = parentEvent[to];
-
-            String fromStopName = getStopName(model, from);
-            String toStopName = getStopName(model, to);
-
-            if (event < 0) { // Déplacement à pied
+            if (parentMode[to] == 0) {                       // WALK
                 out.add(String.format("Walk from %s (%s) to %s (%s)",
-                        fromStopName, formatTime(departureTime),
-                        toStopName, formatTime(arrivalTime)));
-            } else {         // Transport en commun
-                int tripIdx = findTripForDenseEvent(model, event);
-                int routeIdx = model.tripRouteIdxList.getInt(tripIdx);
-                byte transportType = model.routeTypeList.getByte(routeIdx);
-                String transportMode = getTransportModeName(transportType);
-                String lineNumber = getRouteShortName(model, routeIdx);
-                String agencyName = extractAgencyName(model, from);
+                        fromName, depTime, toName, arrTime));
+            } else {                                         // TRANSIT
+                int routeIdx = parentRouteIdx[to];
+                String shortName = model.routeShortPool.get(
+                        model.routeShortIdxList.getInt(routeIdx));
 
-                out.add(String.format("Take %s %s %s from %s (%s) to %s (%s)",
-                        agencyName, transportMode, lineNumber,
-                        fromStopName, formatTime(departureTime),
-                        toStopName, formatTime(arrivalTime)));
+                byte type = model.routeTypeList.getByte(routeIdx);
+
+                String modeStr = switch (type) {
+                    case 0 -> "BUS";
+                    case 1 -> "TRAM";
+                    case 2 -> "METRO";
+                    case 3 -> "TRAIN";
+                    default  -> "TRANSIT";
+                };
+
+                out.add(String.format("Take %s %s from %s (%s) to %s (%s)",
+                        modeStr, shortName, fromName, depTime, toName, arrTime));
+
             }
         }
         return out;
     }
 
-    /* ------------- helpers ------------- */
-
-    /* Récupère le nom d'un arrêt à partir de son index. */
-    private static String getStopName(GlobalModel model, int stopIndex) {
-        int nameIdx = model.stopNameIdxList.getInt(stopIndex);
-        return nameIdx >= 0 ? model.stopNamePool.get(nameIdx) : ("Stop#" + stopIndex);
+    /* ------------ helpers ------------- */
+    private static String stopName(GlobalModel model, int idx) {
+        int nIdx = model.stopNameIdxList.getInt(idx);
+        return (nIdx >= 0 && nIdx < model.stopNamePool.size())
+                ? model.stopNamePool.get(nIdx)
+                : "Stop#" + idx;
     }
 
-    /* Récupère le nom court (numéro de ligne) d'une route. */
-    private static String getRouteShortName(GlobalModel model, int routeIdx) {
-        int shortNameIdx = model.routeShortIdxList.getInt(routeIdx);
-        return shortNameIdx >= 0 ? model.routeShortPool.get(shortNameIdx) : ("Route#" + routeIdx);
+    /* Déduit l’agence (STIB, SNCB, DELIJN, TEC…) du préfixe du stop_id. */
+    private static String agencyFromStopId(GlobalModel model, int idx) {
+        String name = stopName(model, idx);
+        int dash = name.indexOf('-');
+        return (dash > 0) ? name.substring(0, dash) : "TRANSIT";
     }
 
-    /* Trouve l'index global du trip (trajet) contenant l'événement dense identifié par idxDense. */
-    private static int findTripForDenseEvent(GlobalModel model, int idxDense) {
-        IntArrayList tripOffsetsSparse = model.tripOfsSparse;
-        IntArrayList tripOffsetsDense = model.tripOfsDense;
-
-        for (int tripIdx = 0; tripIdx < tripOffsetsSparse.size(); tripIdx++) {
-            int offset = tripOffsetsSparse.getInt(tripIdx);
-            if (offset < 0) continue;  // Slot de remplissage
-
-            // Position dans le tableau dense:
-            int densePos = tripOffsetsDense.indexOf(offset);
-            int nextOffset = (densePos + 1 < tripOffsetsDense.size())
-                    ? tripOffsetsDense.getInt(densePos + 1)
-                    : Integer.MAX_VALUE;
-
-            if (idxDense >= offset && idxDense < nextOffset) {
-                return tripIdx;
-            }
-        }
-        return -1;  // Non trouvé (sécurité)
-    }
-
-    /* Extrait le nom de l'agence de transport à partir de l'ID d'un arrêt. */
-    private static String extractAgencyName(GlobalModel model, int stopIdx) {
-        String stopId = model.id.get(stopIdx);
-        return stopId.split("-")[0];
-    }
-
-    /* Convertit un code de type de transport en nom lisible. */
-    private static String getTransportModeName(byte transportType) {
-        switch (transportType) {
-            case BUS:    return "BUS";
-            case TRAM:   return "TRAM";
-            case METRO:  return "METRO";
-            case TRAIN:  return "TRAIN";
-            default:     return "TRANSIT";
-        }
-    }
-
-    /* Formate un temps en secondes au format "HH:MM". */
-    private static String formatTime(int seconds) {
-        int hours = seconds / 3600;
-        int minutes = (seconds % 3600) / 60;
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds%60);
+    private static String hms(int s) {
+        int h = s / 3600;
+        int m = (s % 3600) / 60;
+        return String.format("%02d:%02d:%02d", h, m, s % 60);
     }
 }
