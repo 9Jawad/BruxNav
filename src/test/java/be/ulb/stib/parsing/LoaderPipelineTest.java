@@ -30,7 +30,7 @@ class LoaderPipelineTest {
         // latList         = [0.0, 1.0, -1, -1, 2.0, 3.0]
         // lonList         = [0.0, 1.0, -1, -1, 2.0, 3.0]
 
-        // stopNamePool    = ["Stop1", "Stop2", "Stop3", "Stop4"]
+        // stopNamePool    = ["0_Stop1", "0_Stop2", "1_Stop3", "1_Stop4"]
         // stopNameIdxList = [0, 1, -1, -1, 2, 3]
 
         assertArrayEquals(new double[]{0.0, 1.0, -1, -1, 2.0, 3.0}, g.latList.toDoubleArray(), 1e-9);
@@ -40,9 +40,9 @@ class LoaderPipelineTest {
 
         /* ==========  ROUTES  ========== */
         // routeTypeList     = [-1, -1, 3, -1, -1, -1, 3]
-        // routeShortPool    = ["10", "20"]
+        // routeShortPool    = ["0_10", "1_20"]
         // routeShortIdxList = [-1, -1, 0, -1, -1, -1, 1]
-        // routeLongPool     = ["Line 10", "Line 20"]
+        // routeLongPool     = ["0_Line 10", "1_Line 20"]
         // routeLongIdxList  = [-1, -1, 0, -1, -1, -1, 1]
 
         assertArrayEquals(new byte[]{-1, -1, 3, -1, -1, -1, 3}, g.routeTypeList.toByteArray());
