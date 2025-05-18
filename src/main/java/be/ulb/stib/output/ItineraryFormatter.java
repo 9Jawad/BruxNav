@@ -68,7 +68,7 @@ public final class ItineraryFormatter {
         for (int i = 1; i < path.size(); i++) {
             int from = path.getInt(i - 1);
             int to   = path.getInt(i);
-            out.add(String.format("(%s,%s,%s,%s)",
+            out.add(String.format("(%s, %s, %s, %s)",
                     stopName(model, from), hms(arrTime[from]),
                     stopName(model, to)  , hms(arrTime[to])));
         }
