@@ -30,10 +30,13 @@ public final class ItineraryFormatter {
             else {
                 TransitEdge te = (TransitEdge)e;
                 Route r = model.routes.get(te.routeId());
+                String agency = e.from().split("-", 2)[0];
+
                 String line = (r.shortIdx >= 0)? model.routeShortPool.get(r.shortIdx) : r.id;
-                System.out.printf("Take %s %s from %s (%s) to %s (%s)%n",
-                        r.type, line, fromName, fmt(te.departureSec()),
-                        toName, fmt(te.arrivalSec()));
+                System.out.printf("Take %s %s %s from %s (%s) to %s (%s)%n",
+                        agency, r.type, line,
+                        fromName, fmt(te.departureSec()),
+                        toName,   fmt(te.arrivalSec()));
                 t = te.arrivalSec();
             }
         }

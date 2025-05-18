@@ -12,8 +12,10 @@ import static be.ulb.stib.parsing.StopTimesLoader.toSec;
 /** A* time-dependent sur graphe multimodal (clés = stop_id). */
 public final class AStarTD {
 
-    private static final double DEG_TO_M = 111_320.0; // 1° ≈ 111,32 km
-    private static final double MAX_VEL  = 38.0;      // 38 m/s ≈ 136 km/h
+    private static final int PENALTY_ROUTE  = 300;       // 5 min
+    private static final int PENALTY_MODE   = 120;       // 2 min
+    private static final double DEG_TO_M    = 111_320.0; // 1° ≈ 111,32 km
+    private static final double MAX_VEL     = 38.0;      // 38 m/s ≈ 136 km/h
 
     private final MultiModalGraph G;
     private final GlobalModel M;
@@ -31,45 +33,62 @@ public final class AStarTD {
     }
 
     /** Recherche et renvoie la liste d’arêtes constituant le chemin optimal. */
-    public List<Edge> search(String srcId, String dstId, int departSec){
+    public List<Edge> search(String srcId,String dstId,int departSec){
 
-        record Node(String stopId, int time, int f){}
+        record Node(String stopId,int time,Edge prev,int f){}   // prev = arête par laquelle on arrive
 
         Map<String,Integer> bestArr   = new HashMap<>();
         Map<String,Edge>    parentEdg = new HashMap<>();
-
         PriorityQueue<Node> open = new PriorityQueue<>(Comparator.comparingInt(n->n.f));
 
         bestArr.put(srcId, departSec);
-        open.add(new Node(srcId, departSec, departSec + h(srcId, dstId)));
+        open.add(new Node(srcId, departSec, null, departSec + h(srcId, dstId)));
 
         while (!open.isEmpty()) {
             Node cur = open.poll();
 
             if (cur.stopId.equals(dstId)) return reconstruct(parentEdg, dstId);
-            if (cur.time > bestArr.get(cur.stopId)) continue; // surclassé
+            if (cur.time > bestArr.get(cur.stopId)) continue;
 
-            for (Edge e : G.neighbors(cur.stopId)) {
-                int newT;
+            for (Edge e : G.neighbors(cur.stopId)){
 
-                if (e.mode()==0) { // marche
-                    newT = cur.time + e.cost();
+                // coût
+                int arrival;
+                if (e.mode()==0){ // Walk
+                    arrival = cur.time + e.cost();
                 }
-                else {            // transit
+                else {           // Transit
                     TransitEdge te = (TransitEdge)e;
-                    if (cur.time > te.departureSec()) continue; // raté l'arret
-                    newT = te.arrivalSec();
+                    if (cur.time > te.departureSec()) continue;   // stop raté
+                    arrival = te.arrivalSec();
                 }
 
-                if (newT < bestArr.getOrDefault(e.to(), Integer.MAX_VALUE)){
-                    bestArr.put(e.to(), newT);
+                // pénalités de correspondance
+                int penalty = 0;
+
+                if (cur.prev != null) {
+                    boolean modeChange = (cur.prev.mode() != e.mode());
+
+                    if (modeChange) penalty += PENALTY_MODE;
+
+                    if (e.mode()==1 && cur.prev.mode()==1){           // transit → transit
+                        TransitEdge prevTe = (TransitEdge) cur.prev;
+                        TransitEdge newTe  = (TransitEdge) e;
+                        if (!prevTe.routeId().equals(newTe.routeId()))
+                            penalty += PENALTY_ROUTE;
+                    }
+                }
+                arrival += penalty;
+
+                if (arrival < bestArr.getOrDefault(e.to(), Integer.MAX_VALUE)){
+                    bestArr.put(e.to(), arrival);
                     parentEdg.put(e.to(), e);
-                    int f = newT + h(e.to(), dstId);
-                    open.add(new Node(e.to(), newT, f));
+                    int f = arrival + h(e.to(), dstId);
+                    open.add(new Node(e.to(), arrival, e, f));
                 }
             }
         }
-        return List.of(); // pas de chemin
+        return List.of();
     }
 
     /* ============== heuristique =================== */
