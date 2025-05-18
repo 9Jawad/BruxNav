@@ -1,11 +1,11 @@
 package be.ulb.stib.parsing;
 
+import be.ulb.stib.core.Stop;
 import be.ulb.stib.data.AgencyModel;
 import be.ulb.stib.tools.CsvReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import static be.ulb.stib.tools.Utils.idx;
-import static be.ulb.stib.tools.Utils.ensureSize;
 
 
 /* Parse un fichier stops.csv et met à jour son AgencyModel. */
@@ -20,22 +20,12 @@ public final class StopLoader {
 
         // parsing
         reader.forEach(row -> {
-            int idx = agency.idDict.getOrAdd(row[colId]);
-
-            // latitude - longitude
-            ensureSize(agency.latList, idx, Double.NaN);
-            ensureSize(agency.lonList, idx, Double.NaN);
-            agency.latList.set(idx, Double.parseDouble(row[colLat]));
-            agency.lonList.set(idx, Double.parseDouble(row[colLon]));
-
-            // pool nom ↔ index
+            String id   = row[colId];
             String name = row[colName];
-            int nIdx = agency.stopName2idx.computeIntIfAbsent(name, k -> {
-                agency.stopNamePool.add(k);
-                return agency.stopNamePool.size() - 1;
-            });
-            ensureSize(agency.stopNameIdxList, idx, -1);
-            agency.stopNameIdxList.set(idx, nIdx);
+            double lat  = Double.parseDouble(row[colLat]);
+            double lon  = Double.parseDouble(row[colLon]);
+            int nameIdx = agency.stopNamePool.intern(name);
+            agency.stops.put(id, new Stop(id, nameIdx, lat, lon));
         });
     }
 }

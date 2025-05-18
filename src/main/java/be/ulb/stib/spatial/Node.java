@@ -1,16 +1,13 @@
 package be.ulb.stib.spatial;
 
 final class Node {
-    int axis;                 // médiane de comparaison (lat = 0, lon = 1)
-    final int stopIdx;        // index global du stop
-    final double lat, lon;    // coordonnées
+    final String id;
+    final double lat, lon;
+    final Node left, right;
 
-    Node left, right;         // Enfants
-
-    Node(int stopIdx, double lat, double lon) {
-        this.stopIdx = stopIdx;
-        this.lat = lat;
-        this.lon = lon;
+    Node(String id,double lat,double lon,Node l,Node r){
+        this.id = id;
+        this.lat = lat; this.lon = lon;
+        left = l; right = r;
     }
 }
-    

@@ -1,104 +1,106 @@
 package be.ulb.stib.algo;
 
+import be.ulb.stib.core.*;
+import be.ulb.stib.core.Edge;
+import be.ulb.stib.core.Stop;
 import be.ulb.stib.data.GlobalModel;
 import be.ulb.stib.graph.MultiModalGraph;
-import it.unimi.dsi.fastutil.ints.IntArrayPriorityQueue;
-import java.util.Arrays;
+import java.util.*;
 import static be.ulb.stib.parsing.StopTimesLoader.toSec;
 
 
+/** A* time-dependent sur graphe multimodal (clés = stop_id). */
 public final class AStarTD {
 
-    /* heuristique « ligne droite / vitesse max » */
-    private static final double DEG_TO_M  = 111_000.0;
-    private static final double MAX_SPEED = 15.0;     // mètre par second
+    private static final double DEG_TO_M = 111_320.0; // 1° ≈ 111,32 km
+    private static final double MAX_VEL  = 38.0;      // 38 m/s ≈ 136 km/h
 
-    private final GlobalModel model;
-    private final MultiModalGraph graph;
+    private final MultiModalGraph G;
+    private final GlobalModel M;
 
-    /* labels */
-    private final int[]    arrival;       // earliest-arrival
-    private final int[]    parentStop;    // reconstruction
-    private final byte[]   parentMode;    // 0=walk 1=transit
-    private final int[]    parentRouteIdx;
-    private final double[] fscore;        // arrival + h
-
-    public AStarTD(GlobalModel gm, MultiModalGraph gr) {
-        model  = gm;
-        graph = gr;
-
-        int n       = graph.size;
-        arrival     = new int[n];
-        parentStop  = new int[n];
-        parentMode  = new byte[n];
-        parentRouteIdx = new int[n];
-        fscore      = new double[n];
+    public AStarTD(MultiModalGraph g, GlobalModel m){
+        G = g;
+        M = m;
     }
 
-    /* ------------------------- API ------------------------- */
-
-    public boolean search(String src, String dst, String departureTime) {
-        int srcIdx = model.stopNameIdxList.indexOf(model.stopName2idx.getInt(src));
-        int dstIdx = model.stopNameIdxList.indexOf(model.stopName2idx.getInt(dst));
-        int departureSec = toSec(departureTime);
-        return search(srcIdx, dstIdx, departureSec);
+    public List<Edge> search(String srcName, String dstName, String hhmmss){
+        String srcId = findStopIdByName(srcName);
+        String dstId = findStopIdByName(dstName);
+        if(srcId==null || dstId==null) throw new IllegalArgumentException("Stop name not found");
+        return search(srcId, dstId, toSec(hhmmss));
     }
 
-    /** recherche src→dst au plus tôt */
-    public boolean search(int src, int dst, int departSec) {
+    /** Recherche et renvoie la liste d’arêtes constituant le chemin optimal. */
+    public List<Edge> search(String srcId, String dstId, int departSec){
 
-        Arrays.fill(arrival,    Integer.MAX_VALUE);
-        Arrays.fill(parentStop, -1);
-        Arrays.fill(parentMode, (byte)-1);
-        Arrays.fill(fscore,     Double.POSITIVE_INFINITY);
-        Arrays.fill(parentRouteIdx, -1);
+        record Node(String stopId, int time, int f){}
 
-        arrival[src] = departSec;
-        fscore [src] = departSec + h(src, dst);
+        Map<String,Integer> bestArr   = new HashMap<>();
+        Map<String,Edge>    parentEdg = new HashMap<>();
 
-        IntArrayPriorityQueue open =
-                new IntArrayPriorityQueue((a,b)->Double.compare(fscore[a], fscore[b]));
-        open.enqueue(src);
+        PriorityQueue<Node> open = new PriorityQueue<>(Comparator.comparingInt(n->n.f));
 
-        boolean[] closed = new boolean[graph.size];
+        bestArr.put(srcId, departSec);
+        open.add(new Node(srcId, departSec, departSec + h(srcId, dstId)));
 
         while (!open.isEmpty()) {
-            int u = open.dequeueInt();
-            if (closed[u]) continue;
-            closed[u] = true;
-            if (u == dst) return true;
+            Node cur = open.poll();
 
-            var neigh = graph.targets.get(u);
-            var cost  = graph.costs  .get(u);
-            var mode  = graph.modes  .get(u);
-            var trip  = graph.routeIdxPerArc.get(u);
-            if (neigh == null) continue;
+            if (cur.stopId.equals(dstId)) return reconstruct(parentEdg, dstId);
+            if (cur.time > bestArr.get(cur.stopId)) continue; // surclassé
 
-            for (int k = 0; k < neigh.size(); k++) {
-                int v   = neigh.getInt(k);
-                int arr = arrival[u] + cost.getInt(k);
-                if (arr < arrival[v]) {
-                    arrival   [v] = arr;
-                    parentStop[v] = u;
-                    parentMode[v] = (byte) mode.getInt(k);
-                    parentRouteIdx[v] = trip.getInt(k);
-                    fscore    [v] = arr + h(v, dst);
-                    open.enqueue(v);
+            for (Edge e : G.neighbors(cur.stopId)) {
+                int newT;
+
+                if (e.mode()==0) { // marche
+                    newT = cur.time + e.cost();
+                }
+                else {            // transit
+                    TransitEdge te = (TransitEdge)e;
+                    if (cur.time > te.departureSec()) continue; // raté l'arret
+                    newT = te.arrivalSec();
+                }
+
+                if (newT < bestArr.getOrDefault(e.to(), Integer.MAX_VALUE)){
+                    bestArr.put(e.to(), newT);
+                    parentEdg.put(e.to(), e);
+                    int f = newT + h(e.to(), dstId);
+                    open.add(new Node(e.to(), newT, f));
                 }
             }
         }
-        return false;
+        return List.of(); // pas de chemin
     }
 
-    /* ------------ heuristique géographique -------------- */
-    private double h(int a, int b) {
-        double dLat = model.latList.getDouble(b) - model.latList.getDouble(a);
-        double dLon = model.lonList.getDouble(b) - model.lonList.getDouble(a);
-        return Math.sqrt(dLat*dLat + dLon*dLon) * DEG_TO_M / MAX_SPEED;
+    /* ============== heuristique =================== */
+    private int h(String fromId, String toId){
+        Stop a = M.stops.get(fromId);
+        Stop b = M.stops.get(toId);
+        double dLat = a.lat - b.lat;
+        double dLon = a.lon - b.lon;
+        double distM = Math.sqrt(dLat*dLat + dLon*dLon) * DEG_TO_M;
+        return (int) Math.ceil(distM / MAX_VEL);
     }
 
-    public int[] earliestArrival() { return arrival; }
-    public int[] parentStops()     { return parentStop; }
-    public byte[] parentModes()    { return parentMode; }
-    public int[] parentRoutes()    { return parentRouteIdx; }
+    /* ============== reconstruction ================ */
+    private List<Edge> reconstruct(Map<String,Edge> parent, String dstId){
+        LinkedList<Edge> path = new LinkedList<>();
+        String cur = dstId;
+
+        while (parent.containsKey(cur)){
+            Edge e = parent.get(cur);
+            path.addFirst(e);
+            cur = e.from();
+        }
+        return path;
+    }
+
+    /* -------------- utilitaires -------------- */
+    private String findStopIdByName(String name){
+        for (Stop s : M.stops.values()){
+            String n = M.stopNamePool.get(s.nameIdx);
+            if (n.equalsIgnoreCase(name)) return s.id;
+        }
+        return null;
+    }
 }

@@ -1,154 +1,63 @@
 package be.ulb.stib.spatial;
 
-import be.ulb.stib.data.GlobalModel;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import static be.ulb.stib.tools.Utils.subList;
+import be.ulb.stib.core.Stop;
+import java.util.ArrayList;
+import java.util.List;
 
 
-/**
- * KD-Tree pour indexer les stops du GlobalModel.
- * Permet de trouver l'arret le plus proche et ceux dans un rayon de x mètres.
- */
+/** KD-Tree 2D minimal pour (lat,lon) → stopId. */
 public final class KDTree {
 
     private final Node root;
 
-    /* Construit le KD-Tree à partir de tous les stops valides du modèle. */
-    public KDTree(GlobalModel model) {
-        ObjectArrayList<Node> pts = new ObjectArrayList();
+    public KDTree(List<Stop> stops) {
+        var pts = new ArrayList<>(stops);
+        this.root = build(pts, 0);
+    }
 
-        for (int i = 0; i < model.stopNameIdxList.size(); i++) {
-            int value = model.stopNameIdxList.get(i);
-            if (value < 0) continue;
-            pts.add(new Node(
-                    i, // stopIdx
-                    model.latList.getDouble(i),
-                    model.lonList.getDouble(i)
-            ));
+    private static Node build(List<Stop> pts,int depth){
+        if(pts.isEmpty()) return null;
+
+        int axis = depth&1;
+        pts.sort((a, b)->Double.compare(axis==0? a.lat : a.lon, axis==0? b.lat : b.lon));
+
+        int mid = pts.size()/2;
+        Stop s = pts.get(mid);
+
+        return new Node(s.id, s.lat, s.lon,
+                build(pts.subList(0, mid), depth+1),
+                build(pts.subList(mid+1, pts.size()), depth+1));
+    }
+
+    /* =============== Recherche par rayon =============== */
+
+    public List<String> radiusSearch(double qLat, double qLon, double radiusMeters){
+        double radiusDeg = radiusMeters / 111_320.0;
+        double r2 = radiusDeg * radiusDeg;
+
+        List<String> out = new ArrayList<>();
+        search(root, qLat, qLon, r2,0, out);
+        return out;
+    }
+
+    private static void search(Node n, double qLat, double qLon, double r2, int depth, List<String> out){
+        if(n==null) return;
+
+        double dLat = n.lat - qLat;
+        double dLon = n.lon - qLon;
+        double dist2 = dLat*dLat + dLon*dLon;
+
+        if(dist2 <= r2) out.add(n.id);
+
+        int axis=depth&1;
+
+        double delta = (axis==0? dLat : dLon); // distance avec l'hyperplan
+
+        if (delta>0) { search(n.left, qLat, qLon, r2, depth+1, out);
+            if (delta*delta <= r2) search(n.right, qLat, qLon, r2, depth+1, out);
         }
-        root = build(pts, 0);
-    }
-
-    /* Construit un arbre KD en alternant les dimensions (latitude/longitude). */
-    private Node build(ObjectArrayList<Node> points, int depth) {
-        // Cas de base
-        if (points.isEmpty()) { return null; } // enfants d'une feuille
-
-        // Détermine l'axe de comparaison
-        boolean isLatitudeAxis = (depth % 2 == 0);
-
-        // Trie les points selon l'axe
-        if (isLatitudeAxis) { points.sort(Comparator.comparingDouble(node -> node.lat)); }
-        else                { points.sort(Comparator.comparingDouble(node -> node.lon)); }
-
-        // Trouve le point médian qui deviendra la racine du sous-arbre
-        int medianIndex = points.size() / 2;
-        Node root = points.get(medianIndex);
-        root.axis = isLatitudeAxis ? 0 : 1;
-
-        // Construit les sous-arbres
-        ObjectArrayList<Node> leftPoints =  subList(points, 0, medianIndex);                   // plus petit
-        ObjectArrayList<Node> rightPoints = subList(points, medianIndex + 1, points.size());   // plus grand
-
-        root.left = build(leftPoints, depth + 1);
-        root.right = build(rightPoints, depth + 1);
-
-        return root;
-    }
-
-    /* ====================== RECHERCHE ====================== */
-
-    /* Recherche du stop le plus proche du point (lat, lon). */
-    public int searchNearest(double lat, double lon) {
-        Nearest best = new Nearest();
-        _searchNearest(root, lat, lon, best);
-        return best.idx;
-    }
-
-    private void _searchNearest(Node node, double lat, double lon, Nearest best) {
-        // Cas de base
-        if (node == null) return;
-
-        // distance euclidienne (pas sqrt = perf)
-        double dLat = node.lat - lat;
-        double dLon = node.lon - lon;
-        double dist = squaredNorm(dLat, dLon);
-
-        // trouvé un meilleur point
-        if (dist < best.dist) {
-            best.dist = dist;
-            best.idx = node.stopIdx;
+        else { search(n.right, qLat, qLon, r2, depth+1, out);
+            if (delta*delta <= r2) search(n.left, qLat, qLon, r2, depth+1, out);
         }
-        // détermination de l'ordre d'exploration des sous-arbres
-        int axis = node.axis;
-
-        // first est le sous-arbre le plus susceptible de contenir le point le plus proche
-        Node first = (axis==0 && node.lat < lat) || (axis==1 && node.lon < lon) ? node.right : node.left;
-        Node second = (first == node.left) ? node.right : node.left; // inverse de first
-
-        _searchNearest(first, lat, lon, best);
-
-        // on vérifie si on doit explorer l’autre branche
-        // donc on calcule la distance entre le point de référence et l'hyperplan
-        double delta = (axis==0 ? dLat : dLon);
-        if (delta*delta < best.dist) { _searchNearest(second, lat, lon, best); }
-    }
-
-    // -----------------------
-
-    /* Renvoie la liste des stopIdx dont la distance euclidienne au point (lat, lon) <= rayon. */
-    public IntArrayList rangeSearch(double lat, double lon, int radiusInMeters, int excludeIdx) {
-        if (radiusInMeters < 0) throw new IllegalArgumentException("range must be positive");
-        double radius = meters2degrees(radiusInMeters);
-
-        IntArrayList result = new IntArrayList();
-        _rangeSearch(root, lat, lon, radius*radius, result, excludeIdx);
-        return result;
-    }
-
-    private void _rangeSearch(Node node, double lat, double lon, double radius, IntArrayList result, int excludeIdx) {
-        // Cas de base
-        if (node == null) return;
-
-        // distance euclidienne (pas sqrt = perf)
-        double dLat = node.lat - lat;
-        double dLon = node.lon - lon;
-        double dist = squaredNorm(dLat, dLon);
-
-        // point dans le rayon
-        if (dist <= radius && node.stopIdx != excludeIdx) {
-            result.add(node.stopIdx);
-        }
-        // détermination de l'ordre d'exploration des sous-arbres
-        int axis = node.axis;
-        double delta = (axis==0 ? dLat : dLon);
-
-        // first est le sous-arbre le plus susceptible d'etre du côté où se trouve le point de recherche
-        Node first = (delta > 0) ? node.left : node.right;
-        Node second = (first == node.left) ? node.right : node.left;
-
-        _rangeSearch(first, lat, lon, radius, result, excludeIdx);
-
-        // vérifier si l'autre sous-arbre peut contenir des points dans le rayon
-        if (delta*delta <= radius) { _rangeSearch(second, lat, lon, radius, result, excludeIdx); }
-    }
-
-    /* ------------- helpers ------------- */
-
-    /* Classe utilitaire pour stocker le résultat de la recherche du point le plus proche */
-    private static class Nearest {
-        int idx = -1;
-        double dist = Double.POSITIVE_INFINITY;
-    }
-
-    private double meters2degrees(int meters) {
-        return meters / 111_000.0; // 1° ≈ 111 km (approximation suffisante)
-    }
-
-    public static double squaredNorm(double dLat, double dLon) {
-        return dLat*dLat + dLon*dLon;
     }
 }
