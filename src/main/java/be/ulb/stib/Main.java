@@ -31,7 +31,7 @@ public final class Main {
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
             System.err.println("Usage: java -jar stibpath-1.0-SNAPSHOT.jar <gtfs-root>");
-            System.err.println("       java -jar stibpath-1.0-SNAPSHOT.jar <gtfs-root> <srcName> <dstName> <HH:mm:ss>");
+            System.err.println("       java -jar stibpath-1.0-SNAPSHOT.jar <gtfs-root> \"<srcName>\" \"<dstName>\" <HH:mm:ss>");
             System.exit(1);
         }
         Path root = Paths.get(args[0]);
@@ -41,7 +41,7 @@ public final class Main {
         }
 
 
-        /* ---------- chargement agence par agence ---------- */
+        /* ================================= LOADING DES AGENCES ===================================== */
         List<AgencyModel> agencies = new ArrayList<>();
         List<Path> agencyDirectories = Files.list(root).filter(Files::isDirectory).toList();
 
@@ -64,7 +64,7 @@ public final class Main {
         System.out.printf("Parsing, completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, parsingSeconds);
 
 
-        /* ---------- fusion dans le GlobalModel ---------- */
+        /* ================================= FUSION DES AGENCES ===================================== */
         startTime = System.nanoTime();
 
         GlobalModel model = new GlobalModel();
@@ -78,7 +78,7 @@ public final class Main {
                 model.stops.size(), model.routes.size(), model.trips.size());
 
 
-        /* ---------- construction du graphe multimodal ---------- */
+        /* ================================= GRAPHE MULTIMODAL ===================================== */
         startTime = System.nanoTime();
 
         List<WalkEdge> walkEdges = WalkEdgeGenerator.generate(model);
@@ -93,7 +93,7 @@ public final class Main {
                 walkEdges.size(), transitEdges.size());
 
 
-        /* ---------- A* time-dependent (optionnel) ---------- */
+        /* ================================= A* TIME-DEPENDENT ===================================== */
         startTime = System.nanoTime();
 
         if (args.length >= 4) {
@@ -101,7 +101,7 @@ public final class Main {
             String dstName = args[2];
             String hhmmss = args[3];
 
-            System.out.printf("%nSearching path: %s  →  %s  at %s%n",
+            System.out.printf("%nSearching path: %s ->  %s  at %s%n",
                                srcName, dstName, hhmmss);
 
             AStarTD astar = new AStarTD(graph, model);

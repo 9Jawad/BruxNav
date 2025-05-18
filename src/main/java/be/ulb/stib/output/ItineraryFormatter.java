@@ -2,12 +2,15 @@ package be.ulb.stib.output;
 
 import be.ulb.stib.core.*;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import be.ulb.stib.data.GlobalModel;
 
 
 /** Affiche un itinéraire détaillé (walk + transit). */
 public final class ItineraryFormatter {
+
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     public static void print(List<Edge> path, int departSec, GlobalModel model){
         int t = departSec;
@@ -37,6 +40,6 @@ public final class ItineraryFormatter {
     }
     
     private static String fmt(int sec){
-        return LocalTime.ofSecondOfDay(sec%86_400).toString();
+        return LocalTime.ofSecondOfDay(sec%86_400).format(TIME_FORMATTER);
     }
 }
