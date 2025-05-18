@@ -9,13 +9,6 @@ import java.util.List;
 import static be.ulb.stib.tools.Utils.reverse;
 
 
-/**
- * Construit un texte lisible à partir :
- *   • du chemin (liste de stops)
- *   • du tableau earliest-arrival[] (secondes)
- *   • du tableau parentMode[]   : 0 = walk, 1 = transit
- *   • du GlobalModel + MultiModalGraph (pour récupérer libellés)
- */
 public final class ItineraryFormatter {
 
     public static List<String> format(IntArrayList pathStops,
@@ -66,16 +59,39 @@ public final class ItineraryFormatter {
         return out;
     }
 
-    /* ------------ helpers ------------- */
 
-    private static String stopName(GlobalModel model, int idx) {
-        int nIdx = model.stopNameIdxList.getInt(idx);
-        return (nIdx >= 0 && nIdx < model.stopNamePool.size())
-                ? model.stopNamePool.get(nIdx)
-                : "Stop#" + idx;
+    /* Retourne une liste de chaînes "(S1,dep,S2,arr)". */
+    public static List<String> formatMinimal(
+            IntArrayList path, int[] arrTime, GlobalModel model)
+    {
+        List<String> out = new ArrayList<>();
+        for (int i = 1; i < path.size(); i++) {
+            int from = path.getInt(i - 1);
+            int to   = path.getInt(i);
+            out.add(String.format("(%s,%s,%s,%s)",
+                    stopName(model, from), hms(arrTime[from]),
+                    stopName(model, to)  , hms(arrTime[to])));
+        }
+        return out;
     }
 
-    /* Déduit l’agence (STIB, SNCB, DELIJN, TEC…) du préfixe du stop_id. */
+    public static IntArrayList reconstruct(int arr, AStarTD astar) {
+        IntArrayList path = new IntArrayList();
+        for (int cur = arr; cur != -1; cur = astar.parentStops()[cur])
+            path.add(cur);
+        reverse(path);
+        return path;
+    }
+
+    /* ----------- helpers ----------- */
+
+    private static String stopName(GlobalModel model, int stopIdx) {
+        int poolIdx = model.stopNameIdxList.getInt(stopIdx);
+        String raw   = model.stopNamePool.get(poolIdx);
+        int us = raw.indexOf('_');
+        return us > 0 ? raw.substring(us + 1) : raw;
+    }
+
     private static String agencyFromStopId(GlobalModel model, int idx) {
         String name = stopName(model, idx);
         int dash = name.indexOf('-');
@@ -83,16 +99,8 @@ public final class ItineraryFormatter {
     }
 
     private static String hms(int s) {
-        int h = s / 3600;
+        int h =  s / 3600;
         int m = (s % 3600) / 60;
         return String.format("%02d:%02d:%02d", h, m, s % 60);
-    }
-
-    public static IntArrayList reconstruct(int arr, AStarTD astar) {
-        IntArrayList path = new IntArrayList();
-                for (int cur = arr; cur != -1; cur = astar.parentStops()[cur])
-                path.add(cur);
-        reverse(path);
-        return path;
     }
 }

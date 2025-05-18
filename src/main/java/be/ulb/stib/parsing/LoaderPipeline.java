@@ -60,13 +60,15 @@ public final class LoaderPipeline {
         int globalDenseOffset = 0;
         boolean firstAgency = true;
 
-        for (AgencyModel agency : agencies) {
+        for (int agIdx = 0; agIdx < agencies.size(); agIdx++) {
+            AgencyModel agency = agencies.get(agIdx);
+            String prefix = agIdx + "_";
 
-            mergeStops(model,     agency, offset); // Fusion des stops
-            mergeRoutes(model,    agency, offset); // Fusion des routes
-            mergeTrips(model,     agency, offset); // Fusion des trips
-            mergeStopTimes(model, agency, offset); // Fusion des stop_times
-            mergeOffsets(model,   agency, offset,  // Fusion des offsets
+            mergeStops(model,     agency, offset, prefix); // Fusion des stops
+            mergeRoutes(model,    agency, offset, prefix); // Fusion des routes
+            mergeTrips(model,     agency, offset);         // Fusion des trips
+            mergeStopTimes(model, agency, offset);         // Fusion des stop_times
+            mergeOffsets(model,   agency, offset,          // Fusion des offsets
                          globalDenseOffset, firstAgency);
 
             // Mise à jour des offsets
@@ -79,10 +81,11 @@ public final class LoaderPipeline {
     // -----------------------
 
     /* Fusionne les stops d'une agence dans le modèle global. */
-    private static void mergeStops(GlobalModel model, AgencyModel agency, int offset) {
+    private static void mergeStops(GlobalModel model, AgencyModel agency, int offset, String prefix) {
         // Fusion des pools partagés pour les stops
         for (String stopName : agency.stopNamePool) {
-            model.stopName2idx.computeIntIfAbsent(stopName, key -> {
+            String gName = prefix + stopName;
+            model.stopName2idx.computeIntIfAbsent(gName, key -> {
                 model.stopNamePool.add(key);
                 return model.stopNamePool.size() - 1;
             });
@@ -94,7 +97,8 @@ public final class LoaderPipeline {
             model.lonList.set(offset + i, agency.lonList.getDouble(i));
 
             String stopName = agency.stopNamePool.get(agency.stopNameIdxList.getInt(i));
-            model.stopNameIdxList.set(offset + i, model.stopName2idx.getInt(stopName));
+            String gName = prefix + stopName;
+            model.stopNameIdxList.set(offset + i, model.stopName2idx.getInt(gName));
 
             // Lookup global ID → index
             String stopId = agency.idDict.get(i);
@@ -104,16 +108,18 @@ public final class LoaderPipeline {
     }
 
     /* Fusionne les routes d'une agence dans le modèle global. */
-    private static void mergeRoutes(GlobalModel model, AgencyModel agency, int offset) {
+    private static void mergeRoutes(GlobalModel model, AgencyModel agency, int offset, String prefix) {
         // Fusion des pools partagés pour les routes
         for (String shortName : agency.routeShortPool) {
-            model.routeShort2idx.computeIntIfAbsent(shortName, key -> {
+            String gSName = prefix + shortName;
+            model.routeShort2idx.computeIntIfAbsent(gSName, key -> {
                 model.routeShortPool.add(key);
                 return model.routeShortPool.size() - 1;
             });
         }
         for (String longName : agency.routeLongPool) {
-            model.routeLong2idx.computeIntIfAbsent(longName, key -> {
+            String gLName = prefix + longName;
+            model.routeLong2idx.computeIntIfAbsent(gLName, key -> {
                 model.routeLongPool.add(key);
                 return model.routeLongPool.size() - 1;
             });
@@ -127,10 +133,12 @@ public final class LoaderPipeline {
             model.routeTypeList.set(offset + i, routeType);
 
             String shortName = agency.routeShortPool.get(agency.routeShortIdxList.getInt(i));
-            model.routeShortIdxList.set(offset + i, model.routeShort2idx.getInt(shortName));
+            String gSName = prefix + shortName;
+            model.routeShortIdxList.set(offset + i, model.routeShort2idx.getInt(gSName));
 
             String longName = agency.routeLongPool.get(agency.routeLongIdxList.getInt(i));
-            model.routeLongIdxList.set(offset + i, model.routeLong2idx.getInt(longName));
+            String gLName = prefix + longName;
+            model.routeLongIdxList.set(offset + i, model.routeLong2idx.getInt(gLName));
 
             // Lookup global ID → index
             String routeId = agency.idDict.get(i);

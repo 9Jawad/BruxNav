@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
 import static be.ulb.stib.output.ItineraryFormatter.reconstruct;
 import static be.ulb.stib.parsing.StopTimesLoader.toSec;
 import static be.ulb.stib.tools.Utils.loadAgency;
@@ -67,11 +66,7 @@ public class Main {
 
         if (ok) {
             IntArrayList path = reconstruct(arr, astar);
-            ItineraryFormatter.format(path,
-                            astar.earliestArrival(),
-                            astar.parentModes(),
-                            astar.parentRoutes(),
-                            model, graph)
+            ItineraryFormatter.formatMinimal(path, astar.earliestArrival(), model)
                     .forEach(System.out::println);
         } else { System.out.println("No path found."); }
     }

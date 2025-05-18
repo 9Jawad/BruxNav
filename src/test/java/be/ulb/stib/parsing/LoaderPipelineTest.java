@@ -35,7 +35,7 @@ class LoaderPipelineTest {
 
         assertArrayEquals(new double[]{0.0, 1.0, -1, -1, 2.0, 3.0}, g.latList.toDoubleArray(), 1e-9);
         assertArrayEquals(new double[]{0.0, 1.0, -1, -1, 2.0, 3.0}, g.lonList.toDoubleArray(), 1e-9);
-        assertEquals(List.of("Stop1", "Stop2" ,"Stop3", "Stop4"),   g.stopNamePool);
+        assertEquals(List.of("0_Stop1", "0_Stop2" ,"1_Stop3", "1_Stop4"),   g.stopNamePool);
         assertArrayEquals(new int[]{0, 1, -1, -1, 2, 3},            g.stopNameIdxList.toIntArray());
 
         /* ==========  ROUTES  ========== */
@@ -46,9 +46,9 @@ class LoaderPipelineTest {
         // routeLongIdxList  = [-1, -1, 0, -1, -1, -1, 1]
 
         assertArrayEquals(new byte[]{-1, -1, 3, -1, -1, -1, 3}, g.routeTypeList.toByteArray());
-        assertEquals(List.of("10", "20"),                       g.routeShortPool);
+        assertEquals(List.of("0_10", "1_20"),                   g.routeShortPool);
         assertArrayEquals(new int[]{-1, -1, 0, -1, -1, -1, 1},  g.routeShortIdxList.toIntArray());
-        assertEquals(List.of("Line 10", "Line 20"),             g.routeLongPool);
+        assertEquals(List.of("0_Line 10", "1_Line 20"),         g.routeLongPool);
         assertArrayEquals(new int[]{-1, -1, 0, -1, -1, -1, 1},  g.routeLongIdxList.toIntArray());
 
         /* ==========  TRIPS  ========== */
