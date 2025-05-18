@@ -12,7 +12,7 @@ import static be.ulb.stib.parsing.StopTimesLoader.toSec;
 /** A* time-dependent sur graphe multimodal (clés = stop_id). */
 public final class AStarTD {
 
-    private static final int PENALTY_ROUTE  = 300;       // 5 min
+    private static final int PENALTY_ROUTE  = 600;       // 10 min
     private static final int PENALTY_MODE   = 120;       // 2 min
     private static final double DEG_TO_M    = 111_320.0; // 1° ≈ 111,32 km
     private static final double MAX_VEL     = 38.0;      // 38 m/s ≈ 136 km/h
