@@ -28,7 +28,7 @@ public final class AStarTD {
     // Constantes de pénalité (en secondes)
     private static final int PENALTY_ROUTE  = 120;          // 2 min pour changement de ligne
     private static final int PENALTY_MODE   = 300;          // 5 min pour changement de mode (ex: bus -> métro)
-    private static final int PENALTY_CHANGE = 900;        // Pénalité élevée pour changement de correspondance
+    private static final int PENALTY_CHANGE = 900;          // Pénalité élevée pour changement de correspondance
 
     private static final double DEG_TO_M    = 111_320.0;    // Conversion degré -> mètres (approx.)
     private static final double MAX_VEL     = 17.0;         // Vitesse max (m/s) ≈ 60 km/h
