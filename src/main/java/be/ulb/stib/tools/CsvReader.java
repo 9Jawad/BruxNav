@@ -21,6 +21,7 @@ public final class CsvReader implements AutoCloseable {
     private final CSVReader csv;
     private final String[] headers;
 
+
     /* Ouvre un fichier CSV en UTF‑8 et lit la ligne d’en‑tête. */
     public CsvReader(Path csvPath) throws IOException {
         Reader r = Files.newBufferedReader(csvPath, StandardCharsets.UTF_8);
@@ -29,10 +30,12 @@ public final class CsvReader implements AutoCloseable {
         if (headers == null) throw new IOException("Empty CSV file: " + csvPath);
     }
 
+
     /* Renvoie l’en‑tête du fichier. */
     public String[] getHeaders() {
         return headers;
     }
+
 
     /* Renvoie la prochaine ligne du CSV ou null si fin du fichier. */
     private String[] next() throws IOException {
@@ -43,6 +46,7 @@ public final class CsvReader implements AutoCloseable {
         }
     }
 
+
     /* Parcourt toutes les lignes du CSV et applique une action. */
     public void forEach(Consumer<String[]> action) throws IOException {
         String[] row;
@@ -51,6 +55,7 @@ public final class CsvReader implements AutoCloseable {
         }
         close();
     }
+
 
     @Override
     public void close() throws IOException {

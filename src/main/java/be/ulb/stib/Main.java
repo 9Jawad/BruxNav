@@ -114,7 +114,6 @@ public final class Main {
 
                 ItineraryFormatter.print(path, toSec(hhmmss), model);
                 System.out.printf("PathFind, completed in " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, astarSeconds);
-
             }
         }
         System.out.printf("TOTAL TIME : " + ANSI_GREEN + "%.2f s\n\n" + ANSI_RESET, fusionSeconds + parsingSeconds + astarSeconds + graphSeconds);

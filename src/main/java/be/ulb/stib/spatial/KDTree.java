@@ -29,6 +29,7 @@ public final class KDTree {
                 build(pts.subList(mid+1, pts.size()), depth+1));
     }
 
+
     /* =============== Recherche par rayon =============== */
 
     public List<String> radiusSearch(double qLat, double qLon, double radiusMeters){

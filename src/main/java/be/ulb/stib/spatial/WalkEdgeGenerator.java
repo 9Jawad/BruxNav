@@ -19,6 +19,7 @@ public final class WalkEdgeGenerator {
     private static final double DEFAULT_RADIUS_M = 1000; // rayon maximal de marche en mètres.
     private static final double WALK_SPEED       = 1.25; // vitesse de marche (4,5km/h).
 
+
     /* Ajoute les arcs piétons au GlobalModel. */
     public static List<WalkEdge> generate(GlobalModel model, double radiusMeters) {
         KDTree kd = new KDTree(new ArrayList<>(model.stops.values()));
@@ -38,11 +39,11 @@ public final class WalkEdgeGenerator {
         }
         return edges;
     }
-
     /* Surcharge pratique avec le rayon par défaut (1km). */
     public static List<WalkEdge> generate(GlobalModel model) {
         return generate(model, DEFAULT_RADIUS_M);
     }
+
 
     /* ============= helpers ============= */
 

@@ -42,6 +42,7 @@ public final class StopTimesLoader {
         }
     }
 
+
     /* ============= helpers ============= */
 
     public static int toSec(String hhmmss) {

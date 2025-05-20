@@ -24,7 +24,8 @@ public final class Utils {
         if (i < 0) throw new IllegalStateException("Column '" + key + "' not found");
         return i;
     }
-    
+
+
     /**
      * Charge un AgencyModel en lisant et en analysant les fichiers CSV requis depuis le répertoire spécifié.
      * La méthode charge les arrêts, les routes, les trajets et les horaires d'arrêt dans le modèle.
