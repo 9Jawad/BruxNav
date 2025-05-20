@@ -28,7 +28,6 @@ public final class AStarTD {
     // Constantes de pénalité (en secondes)
     private static final int PENALTY_ROUTE  = 120;          // 2 min pour changement de ligne
     private static final int PENALTY_MODE   = 300;          // 5 min pour changement de mode (ex: bus -> métro)
-    private static final int PENALTY_CHANGE = 900;          // Pénalité élevée pour changement de correspondance
 
     private static final double DEG_TO_M    = 111_320.0;    // Conversion degré -> mètres (approx.)
     private static final double MAX_VEL     = 17.0;         // Vitesse max (m/s) ≈ 60 km/h
@@ -108,6 +107,8 @@ public final class AStarTD {
                 if (cur.prev != null) {
 
                     boolean modeChange = (cur.prev.mode() != e.mode());
+                    if (!modeChange && e.mode() == 0) continue;
+
                     if (modeChange) penalty += PENALTY_MODE;
 
                     // Si on reste en mode transport, vérifier le changement de ligne
@@ -115,7 +116,7 @@ public final class AStarTD {
                         TransitEdge prevTe = (TransitEdge) cur.prev;
                         TransitEdge newTe  = (TransitEdge) e;
                         if (!prevTe.routeId().equals(newTe.routeId()))
-                            penalty += PENALTY_ROUTE + PENALTY_CHANGE;
+                            penalty += PENALTY_ROUTE;
                     }
                 }
                 // Si on trouve un meilleur chemin vers ce voisin, on l'ajoute à la file
