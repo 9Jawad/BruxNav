@@ -1,39 +1,32 @@
 package be.ulb.stib.data;
 
 import be.ulb.stib.core.*;
-import java.util.HashMap;
-import java.util.Map;
 
 
-/** Union de toutes les agences. */
-public final class GlobalModel {
-
-    /* pools fusionnés */
-    public final StringPool stopNamePool  = new StringPool();
-    public final StringPool routeShortPool= new StringPool();
-    public final StringPool routeLongPool = new StringPool();
-
-    /* maps globales */
-    public final Map<String, Stop> stops  = new HashMap<>();
-    public final Map<String, Route> routes = new HashMap<>();
-    public final Map<String, Trip> trips  = new HashMap<>();
-
-
-    /* ------------ FUSION ------------ */
+/**
+ * La classe GlobalModel étend AgencyModel et fournit des fonctionnalités
+ * pour fusionner les données de plusieurs instances de {@link AgencyModel} en un modèle global unique.
+ * 
+ * La méthode addAgency(AgencyModel) effectue une fusion en trois étapes :
+ *   Fusionne les arrêts en internant les noms d'arrêts et en les ajoutant à la collection globale d'arrêts.</li>
+ *   Fusionne les lignes en internant les noms courts et longs des lignes, puis en les ajoutant à la collection globale de lignes.</li>
+ *   Fusionne les trajets en les associant aux lignes et arrêts globaux, puis en ajoutant les horaires d'arrêt correspondants.</li>
+ */
+public final class GlobalModel extends AgencyModel {
 
     public void addAgency(AgencyModel a) {
-        /* 1) fusion des stops */
+        // fusion des stops 
         for (Stop s : a.stops.values()) {
             int globalNameIdx = stopNamePool.intern(a.stopNamePool.get(s.nameIdx));
             stops.put(s.id, new Stop(s.id, globalNameIdx, s.lat, s.lon));
         }
-        /* 2) fusion des routes */
+        // fusion des routes
         for (Route r : a.routes.values()) {
             int shortIdx = routeShortPool.intern(a.routeShortPool.get(r.shortIdx));
             int longIdx  = routeLongPool .intern(a.routeLongPool .get(r.longIdx ));
             routes.put(r.id, new Route(r.id, shortIdx, longIdx, r.type));
         }
-        /* 3) fusion des trips */
+        // fusion des trips 
         for (Trip t : a.trips.values()) {
             Route globalRoute = routes.get(t.route.id);
             Trip  gTrip       = new Trip(t.id, globalRoute);

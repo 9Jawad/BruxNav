@@ -8,15 +8,15 @@ import java.util.Map;
 
 
 /** Données brutes d’une seule agence. */
-public final class AgencyModel {
+public class AgencyModel {
 
     /* === pools de chaînes (optimisation mémoire) === */
-    public final StringPool stopNamePool  = new StringPool();
-    public final StringPool routeShortPool= new StringPool();
-    public final StringPool routeLongPool = new StringPool();
+    public final StringPool stopNamePool  = new StringPool();      // Pool pour les noms d'arrêts
+    public final StringPool routeShortPool= new StringPool();      // Pool pour les noms courts de lignes
+    public final StringPool routeLongPool = new StringPool();      // Pool pour les noms longs de lignes
 
     /* === dictionnaires GTFS → objets === */
-    public final Map<String, Stop> stops  = new HashMap<>();
-    public final Map<String, Route> routes = new HashMap<>();
-    public final Map<String, Trip> trips  = new HashMap<>();
+    public final Map<String, Stop> stops  = new HashMap<>();       // Identifiant GTFS → arrêt
+    public final Map<String, Route> routes = new HashMap<>();      // Identifiant GTFS → ligne
+    public final Map<String, Trip> trips  = new HashMap<>();       // Identifiant GTFS → trajet
 }

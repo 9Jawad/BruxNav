@@ -15,33 +15,34 @@ public final class StopTimesLoader {
 
     public static void load(Path stopTimesCsv, AgencyModel agency) throws IOException {
 
-        CsvReader reader = new CsvReader(stopTimesCsv);
-        int colTrip = idx(reader.getHeaders(), "trip_id");
-        int colStop = idx(reader.getHeaders(), "stop_id");
-        int colTime = idx(reader.getHeaders(), "departure_time");
-        int colSeq  = idx(reader.getHeaders(), "stop_sequence");
+        try (CsvReader reader = new CsvReader(stopTimesCsv)) {
+            int colTrip = idx(reader.getHeaders(), "trip_id");
+            int colStop = idx(reader.getHeaders(), "stop_id");
+            int colTime = idx(reader.getHeaders(), "departure_time");
+            int colSeq  = idx(reader.getHeaders(), "stop_sequence");
 
-        final String[] currentTripId = {null};
-        final Trip[] currentTrip = {null};
+            final String[] currentTripId = {null};
+            final Trip[] currentTrip = {null};
 
-        // parsing
-        reader.forEach(row -> {
-            String tripId = row[colTrip];
-            if (!tripId.equals(currentTripId[0])) {
-                currentTripId[0] = tripId;
-                currentTrip[0] = agency.trips.get(tripId);
-            }
-            Stop stop   = agency.stops.get(row[colStop]);
-            int depSec  = toSec(row[colTime]);
-            int seq     = Integer.parseInt(row[colSeq]);
-            currentTrip[0].addStopTime(new StopTime(stop, depSec, seq));
-        });
+            // parsing
+            reader.forEach(row -> {
+                String tripId = row[colTrip];
+                if (!tripId.equals(currentTripId[0])) {
+                    currentTripId[0] = tripId;
+                    currentTrip[0] = agency.trips.get(tripId);
+                }
+                Stop stop   = agency.stops.get(row[colStop]);
+                int depSec  = toSec(row[colTime]);
+                int seq     = Integer.parseInt(row[colSeq]);
+                currentTrip[0].addStopTime(new StopTime(stop, depSec, seq));
+            });
+        }
         for (Trip t : agency.trips.values()) {
             t.steps().sort((s1,s2)->Integer.compare(s1.sequence(), s2.sequence()));
         }
     }
 
-    /* ------------- helpers ------------- */
+    /* ============= helpers ============= */
 
     public static int toSec(String hhmmss) {
         String[] p = hhmmss.split(":");

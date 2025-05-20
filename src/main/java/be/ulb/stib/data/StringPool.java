@@ -5,13 +5,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-/* Flyweight : stocke chaque chaîne au plus une fois et renvoie son index. */
+/**
+ * StringPool permet de stocker et de récupérer efficacement des chaînes en leur attribuant un indice stable.
+ * Si la même chaîne est internée plusieurs fois, le même indice est renvoyé.
+ * Le pool permet également la recherche inverse de l'indice vers la chaîne.
+ */
 public final class StringPool {
 
     private final ArrayList<String> pool = new ArrayList<>();
     private final Map<String,Integer> map = new HashMap<>();
 
-    /** @return l’index (stable) de s dans le pool. */
+    /** @return l’index (stable) dans le pool. */
     public int intern(String s) {
         return map.computeIfAbsent(s, k -> {
             pool.add(k);
@@ -22,5 +26,5 @@ public final class StringPool {
     /* récupération inverse (lecture seule) */
     public String get(int idx) { return pool.get(idx); }
 
-    public int size()          { return pool.size();   }
+    public int size() { return pool.size(); }
 }

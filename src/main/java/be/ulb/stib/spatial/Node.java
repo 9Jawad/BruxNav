@@ -1,5 +1,10 @@
 package be.ulb.stib.spatial;
 
+/**
+ * Représente un nœud dans une structure de données spatiale, telle qu'un arbre k-d.
+ * Chaque nœud contient un identifiant unique, des coordonnées géographiques (latitude et longitude),
+ * ainsi que des références vers ses nœuds enfants gauche et droit.
+ */
 final class Node {
     final String id;
     final double lat, lon;

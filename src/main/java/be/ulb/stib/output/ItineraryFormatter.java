@@ -7,7 +7,13 @@ import java.util.List;
 import be.ulb.stib.data.GlobalModel;
 
 
-/** Affiche un itinéraire détaillé (walk + transit). */
+/**
+ * ItineraryFormatter fournit une méthode statique pour imprimer une description
+ * lisible d'un chemin, incluant les segments à pied et en transport, avec des horaires formatés.
+ * 
+ * Les segments à pied sont affichés avec les noms et horaires de départ et d'arrivée.
+ * Les segments en transport incluent l'agence, le type de ligne, la ligne, et les horaires de départ/arrivée formatés.
+ */
 public final class ItineraryFormatter {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -27,7 +33,7 @@ public final class ItineraryFormatter {
                         fromName, fmt(t), toName, fmt(arr));
                 t = arr;
             }
-            else {
+            else {          // Transit
                 TransitEdge te = (TransitEdge)e;
                 Route r = model.routes.get(te.routeId());
                 String agency = e.from().split("-", 2)[0];

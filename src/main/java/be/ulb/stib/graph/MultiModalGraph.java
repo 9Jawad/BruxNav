@@ -8,8 +8,11 @@ import java.util.*;
 
 
 /**
- * Graphe multimodal
- * Pour chaque sommet on fusionne les arcs piétons avec les arcs transit
+ * Représente un graphe multimodal où chaque arrêt (identifié par stop_id) est associé
+ * à une liste d'arêtes sortantes, incluant à la fois les connexions piétonnes et de transit.
+ * 
+ * Le graphe est construit à partir d'un modèle global des arrêts, d'une liste d'arêtes piétonnes
+ * et d'une liste d'arêtes de transit. Chaque arrêt est associé à ses arêtes sortantes.
  */
 public final class MultiModalGraph {
 
@@ -19,7 +22,7 @@ public final class MultiModalGraph {
     public MultiModalGraph(GlobalModel model, List<WalkEdge> walk, List<TransitEdge> trans) {
         for (String id: model.stops.keySet()) graph.put(id, new ArrayList<>());
         
-        walk.forEach(e -> graph.get(e.from()).add(e));
+        walk.forEach(e  -> graph.get(e.from()).add(e));
         trans.forEach(e -> graph.get(e.from()).add(e));
     }
     

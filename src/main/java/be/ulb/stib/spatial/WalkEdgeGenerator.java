@@ -3,8 +3,6 @@ package be.ulb.stib.spatial;
 import be.ulb.stib.core.Stop;
 import be.ulb.stib.core.WalkEdge;
 import be.ulb.stib.data.GlobalModel;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.ArrayList;
 import java.util.List;
 import static java.lang.Math.sqrt;
@@ -12,7 +10,7 @@ import static java.lang.Math.sqrt;
 
 /**
  * Construit, pour chaque arrêt, la liste des voisins accessibles à pied.
- * Les arêtes sont stockées dans deux tableaux parallèles du GlobalModel:
+ * Les arêtes sont stockées dans deux tableaux parallèles du GlobalModel :
  *   walkEdges     : ObjectArrayList<IntArrayList> – indices cibles
  *   walkEdgesCost : ObjectArrayList<IntArrayList> – coût (secondes)
  */
@@ -46,7 +44,7 @@ public final class WalkEdgeGenerator {
         return generate(model, DEFAULT_RADIUS_M);
     }
 
-    /* ------------- helpers ------------- */
+    /* ============= helpers ============= */
 
     private static double distanceInMeters(Stop a, Stop b) {
         double dLat = a.lat - b.lat;

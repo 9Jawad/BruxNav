@@ -4,7 +4,6 @@ import be.ulb.stib.algo.AStarTD;
 import be.ulb.stib.core.*;
 import be.ulb.stib.graph.MultiModalGraph;
 import be.ulb.stib.output.ItineraryFormatter;
-import be.ulb.stib.parsing.*;
 import be.ulb.stib.data.*;
 import be.ulb.stib.spatial.TransitEdgeGenerator;
 import be.ulb.stib.spatial.WalkEdgeGenerator;

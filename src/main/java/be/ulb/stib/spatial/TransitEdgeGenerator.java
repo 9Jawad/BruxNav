@@ -8,6 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * TransitEdgeGenerator fournit une méthode statique permettant de créer une liste
+ * d'objets TransitEdge en parcourant tous les trajets du GlobalModel fourni.
+ * Pour chaque trajet, elle génère des arêtes entre arrêts consécutifs, en capturant les heures
+ * de départ ainsi que les identifiants de la ligne et du trajet associés.
+ */
 public final class TransitEdgeGenerator {
 
     public static List<TransitEdge> generate(GlobalModel model){

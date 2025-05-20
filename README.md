@@ -4,17 +4,19 @@
 
 > **BruxNav** est un calculateur d’itinéraires multimodal couvrant l’ensemble des transports publics belges (STIB, TEC, DeLijn, SNCB). Donnez un arrêt de départ, un arrêt d’arrivée, une heure: il vous renvoie la combinaison optimale de bus, tram, métro, train et marche à pied.
 
+![alt text](https://upload.wikimedia.org/wikipedia/commons/1/17/Belgium_road_map.png)
+
 ---
 
 ## Sommaire
 
 * [Fonctionnalités](#fonctionnalités)
 * [Prérequis](#prérequis)
-* [Installation & Compilation](#installation--compilation)
+* [Installation &amp; Compilation](#installation--compilation)
 * [Utilisation](#utilisation)
 * [Options avancées](#options-avancées)
 * [Organisation du projet](#organisation-du-projet)
-* [Algorithme](#Architecture-et-algorithme)
+* [Algorithme](#architecture-et-algorithme)
 * [Données](#données)
 * [Auteurs](#auteurs)
 
@@ -24,7 +26,7 @@
 * **Optimisation temporelle**: variante de Dijkstra (A*) tenant compte des horaires et des temps d’attente.
 * **Correspondances à pied** avec pénalités configurables.
 * **Modes de coût**: minimisation du temps, du nombre de changements, pénalisation sélective par mode, etc.
-* **Interface CLI** 
+* **Interface CLI**
 
 ## Prérequis
 
@@ -62,17 +64,17 @@ java -jar target\stibpath-1.0-SNAPSHOT.jar .\GTFS "TRONE" "BRUSSELS AIRPORT" "04
 
 ### Options avancées
 
-| Option              | Description                             | Valeur par défaut |
-| ------------------- | --------------------------------------- | ----------------- |
-| `--min-changes`     | Minimise le nombre de correspondances   | *désactivé*       |
-| `--avoid=<MODE>`    | Évite un mode (TRAIN, TRAM, BUS, METRO) | *désactivé*           |
-| `--walk-factor=<k>` | Multiplie le temps de marche par *k*    | *désactivé*              |
+| Option                | Description                              | Valeur par défaut  |
+| --------------------- | ---------------------------------------- | ------------------ |
+| `--min-changes`       | Minimise le nombre de correspondances    | *désactivé*        |
+| `--avoid=<MODE>`      | Évite un mode (TRAIN, TRAM, BUS, METRO)  | *désactivé*        |
+| `--walk-factor=<k>`   | Multiplie le temps de marche par*k*      | *désactivé*        |
 
 Pas eu le temps d'implémenter malheureusement...
 
 ## Organisation du projet
 
-```
+```txt
 BruxNav/
 ├── GTFS/
 │   ├── DELIJN/
@@ -80,7 +82,7 @@ BruxNav/
 │   ├── SNCB/
 │   ├── STIB/
 │   └── TEC/
-
+│
 ├── src/
 │   └── main/
 │       └── java/
@@ -119,7 +121,7 @@ BruxNav/
 │                       └── tools/
 │                           ├── CsvReader.java
 │                           └── Utils.java
-
+│
 ├── pom.xml
 └── README.md
 
@@ -128,24 +130,17 @@ BruxNav/
 ## Architecture et algorithme
 
 1. **Chargement GTFS**: via `AgencyModel` (maps).
-
 2. **Fusion**: `GlobalModel` (union des maps + pools de chaînes unifiés).
-
 3. **KD-Tree**: recherche binaire pour trouver le voisinage spatial
-
 4. **Génération d’arcs** :
-    piétons (`WalkEdgeGenerator`, rayon r)
+   piétons (`WalkEdgeGenerator`, rayon r)
 
-    (arcs bidirectionnels ajoutés en fonction d'un rayon <1km.)
+   (arcs bidirectionnels ajoutés en fonction d'un rayon <1km.)
 
-    transit (`TransitEdgeGenerator`, séquence de Trip)
-
+   transit (`TransitEdgeGenerator`, séquence de Trip)
 5. **Graphe multimodal**: `HashMap<StopId, List<Edge>>`.
-
 6. **A***: dépendant du temps, pénalités correspondance.
-
 7. **ItineraryFormatter**: sortie lisible (format présent dans le PDF du projet).
-
 
 Complexité: **O(k logN)**.
 
@@ -153,12 +148,12 @@ Complexité: **O(k logN)**.
 
 Chaque agence fournit:
 
-| Fichier          | Contenu                  |
-| ---------------- | ------------------------ |
-| `routes.csv`     | Métadonnées des lignes   |
-| `stops.csv`      | Coordonnées des arrêts   |
-| `trips.csv`      | Identifiants des trajets |
-| `stop_times.csv` | Horaires au pas d’arrêt  |
+| Fichier            | Contenu                   |
+| ------------------ | ------------------------- |
+| `routes.csv`     | Métadonnées des lignes  |
+| `stops.csv`      | Coordonnées des arrêts  |
+| `trips.csv`      | Identifiants des trajets  |
+| `stop_times.csv` | Horaires au pas d’arrêt |
 
 Placez les CSV dans `GTFS/<Agence>/`.
 

@@ -11,7 +11,11 @@ import java.nio.file.Path;
 import java.util.function.Consumer;
 
 
-/* Lecture de fichier CSV. */
+/**
+ * CsvReader est une classe utilitaire pour lire des fichiers CSV encodés en UTF-8.
+ * Elle lit la ligne d’en-tête lors de l’initialisation et fournit des méthodes
+ * pour accéder aux en-têtes et parcourir les lignes du fichier CSV.
+ */
 public final class CsvReader implements AutoCloseable {
 
     private final CSVReader csv;

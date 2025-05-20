@@ -8,11 +8,15 @@ import java.nio.file.Path;
 import static be.ulb.stib.tools.Utils.idx;
 
 
-/* Parse un fichier routes.csv et met à jour son AgencyModel. */
+/**
+ * RouteLoader lit un fichier CSV contenant des informations sur les routes et remplit
+ * l'AgencyModel fourni avec des objets Route. Le fichier CSV doit contenir les en-têtes :
+ * "route_id", "route_short_name", "route_long_name" et "route_type".
+ */
 public final class RouteLoader {
 
     public static void load(Path routesCsv, AgencyModel agency) throws IOException {
-        CsvReader reader = new CsvReader(routesCsv);
+       try (CsvReader reader = new CsvReader(routesCsv)) {
         int colId   = idx(reader.getHeaders(), "route_id");
         int colShrt = idx(reader.getHeaders(), "route_short_name");
         int colLong = idx(reader.getHeaders(), "route_long_name");
@@ -28,5 +32,6 @@ public final class RouteLoader {
             int longIdx  = agency.routeLongPool .intern(longName );
             agency.routes.put(id, new Route(id, shortIdx, longIdx, type));
         });
+       }
     }
 }
