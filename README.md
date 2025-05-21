@@ -4,7 +4,8 @@
 
 > **BruxNav** est un calculateur d’itinéraires multimodal couvrant l’ensemble des transports publics belges (STIB, TEC, DeLijn, SNCB). Donnez un arrêt de départ, un arrêt d’arrivée, une heure: il vous renvoie la combinaison optimale de bus, tram, métro, train et marche à pied.
 
-![alt text](https://upload.wikimedia.org/wikipedia/commons/1/17/Belgium_road_map.png)
+| <img src="https://upload.wikimedia.org/wikipedia/commons/1/17/Belgium_road_map.png" width="550"/> | ![img.png](output.png) |
+|:-------------------------------------------------------------------------------------------------:|:----------------------:|
 
 ---
 
